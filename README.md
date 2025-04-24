@@ -22,7 +22,9 @@ adlin/
 
 ### 📦 Setup
 
+```
 cd backend/api
+```
 
 1. Install dependencies
    npm install
@@ -45,8 +47,10 @@ Swagger includes all endpoints with query params, payload examples, and error ca
 
 ### 🧪 Run Tests
 
+```
 cd backend/api
 npm run test
+```
 
 ## 🖥️ Frontend:
 
