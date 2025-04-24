@@ -41,7 +41,7 @@ cd backend/api
 ### 📚 API Documentation
 
 Available at:
-http://localhost:3000/api
+http://localhost:3001/api
 
 Swagger includes all endpoints with query params, payload examples, and error cases.
 
