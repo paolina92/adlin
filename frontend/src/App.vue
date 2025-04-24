@@ -1,19 +1,19 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
-import Button from './components/Button/index.vue'
+import SelectDropdown from '@/components/SelectDropdown'
 
 export default defineComponent({
   name: 'App',
   components: {
-    Button
+    SelectDropdown,
   },
   setup() {
     const message = ref('Hello world Pauline')
-    
+
     return {
-      message
+      message,
     }
-  }
+  },
 })
 </script>
 
@@ -22,6 +22,6 @@ export default defineComponent({
     <div class="text-4xl">{{ message }}</div>
     <div class="text-4xl">{{ message }}</div>
     <div>Hello</div>
-    <Button />
+    <SelectDropdown />
   </div>
 </template>
