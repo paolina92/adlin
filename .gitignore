@@ -5,6 +5,7 @@
 # node_modules & build
 frontend/node_modules/
 frontend/dist/
+frontend/dist-ssr/
 
 # Vite cache
 frontend/.vite/
@@ -13,13 +14,28 @@ frontend/.vite/
 frontend/.env
 frontend/.env.local
 frontend/.env.*.local
+frontend/*.local
 
 # System
 frontend/.DS_Store
 
-# IDEs
+# IDEs and editor files
 frontend/.idea/
 frontend/.vscode/
+frontend/*.suo
+frontend/*.ntvs*
+frontend/*.njsproj
+frontend/*.sln
+frontend/*.sw?
+
+# Logs
+frontend/logs
+frontend/*.log
+frontend/npm-debug.log*
+frontend/pnpm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/lerna-debug.log*
 
 # ==========================
 # 🔧 BACKEND (NestJS + Prisma)
@@ -37,6 +53,7 @@ backend/api/npm-debug.log*
 backend/api/pnpm-debug.log*
 backend/api/yarn-debug.log*
 backend/api/yarn-error.log*
+backend/api/lerna-debug.log*
 
 # Test coverage
 backend/api/coverage/
@@ -56,6 +73,11 @@ backend/api/.tmp
 backend/api/.idea/
 backend/api/.vscode/
 backend/api/.history/
+backend/api/*.suo
+backend/api/*.ntvs*
+backend/api/*.njsproj
+backend/api/*.sln
+backend/api/*.sw?
 
 # Runtime data
 backend/api/pids
