@@ -1,0 +1,81 @@
+# ==========================
+# 🌐 FRONTEND (Vue 3 + Vite)
+# ==========================
+
+# node_modules & build
+frontend/node_modules/
+frontend/dist/
+
+# Vite cache
+frontend/.vite/
+
+# Local env
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+# System
+frontend/.DS_Store
+
+# IDEs
+frontend/.idea/
+frontend/.vscode/
+
+# ==========================
+# 🔧 BACKEND (NestJS + Prisma)
+# ==========================
+
+# node_modules & build
+backend/api/node_modules/
+backend/api/dist/
+backend/api/build/
+
+# Logs
+backend/api/logs
+backend/api/*.log
+backend/api/npm-debug.log*
+backend/api/pnpm-debug.log*
+backend/api/yarn-debug.log*
+backend/api/yarn-error.log*
+
+# Test coverage
+backend/api/coverage/
+backend/api/.nyc_output/
+
+# Prisma
+backend/api/prisma/dev.db
+backend/api/prisma/dev.db-journal
+backend/api/prisma/.env
+
+# Misc
+backend/api/.DS_Store
+backend/api/.temp
+backend/api/.tmp
+
+# IDEs
+backend/api/.idea/
+backend/api/.vscode/
+backend/api/.history/
+
+# Runtime data
+backend/api/pids
+backend/api/*.pid
+backend/api/*.seed
+backend/api/*.pid.lock
+
+# Reports
+backend/api/report.*.json
+
+# Optional dotenv configs
+backend/api/.env
+backend/api/.env.local
+backend/api/.env.*.local
+
+# ==========================
+# 🧼 Global (root-level)
+# ==========================
+
+.DS_Store
+.env
+.env.local
+node_modules/
