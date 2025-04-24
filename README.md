@@ -37,16 +37,28 @@ cd backend/api
 ```
 
 1. Install dependencies
-   pnpm install
+
+```
+pnpm install
+```
 
 2. Generate the database
-   npx prisma migrate dev --name init
+
+```
+npx prisma migrate dev --name init
+```
 
 3. Seed with sample data
-   npx prisma db seed
+
+```
+npx prisma db seed
+```
 
 4. Start the server
-   pnpm run start:dev
+
+```
+pnpm run start:dev
+```
 
 ### 📚 API Documentation
 
