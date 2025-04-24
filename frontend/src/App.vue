@@ -20,8 +20,6 @@ export default defineComponent({
 <template>
   <div class="flex flex-col items-center justify-center h-screen">
     <div class="text-4xl">{{ message }}</div>
-    <div class="text-4xl">{{ message }}</div>
-    <div>Hello</div>
     <SelectDropdown />
   </div>
 </template>
