@@ -11,10 +11,6 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiQuery, ApiBody, ApiResponse } from '@nestjs/swagger';
 import { ReservationsService } from './reservations.service';
-import {
-  CreateReservationDto,
-  UpdateReservationDto,
-} from '../types/reservation.interface';
 
 @ApiTags('reservations')
 @Controller('reservations')
@@ -50,12 +46,7 @@ export class ReservationsController {
   async create(
     @Body() body: { roomId: number; startDate: string; endDate: string },
   ) {
-    const createDto: CreateReservationDto = {
-      roomId: body.roomId,
-      startDate: new Date(body.startDate),
-      endDate: new Date(body.endDate),
-    };
-    return this.reservationsService.create(createDto);
+    return this.reservationsService.create(body);
   }
 
   @ApiBody({
@@ -74,14 +65,9 @@ export class ReservationsController {
   @Put(':id')
   async update(
     @Param('id') id: string,
-    @Body() body: { startDate?: string; endDate?: string; roomId?: number },
+    @Body() body: { startDate: string; endDate: string },
   ) {
-    const updateDto: UpdateReservationDto = {
-      startDate: body.startDate ? new Date(body.startDate) : undefined,
-      endDate: body.endDate ? new Date(body.endDate) : undefined,
-      roomId: body.roomId,
-    };
-    return this.reservationsService.update(Number(id), updateDto);
+    return this.reservationsService.update(Number(id), body);
   }
 
   @ApiResponse({ status: 200, description: 'Reservation deleted' })

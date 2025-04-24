@@ -1,9 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import {
-  CreateReservationDto,
-  UpdateReservationDto,
-} from '../types/reservation.interface';
 
 @Injectable()
 export class ReservationsService {
@@ -23,12 +19,8 @@ export class ReservationsService {
     });
   }
 
-  async create(data: CreateReservationDto) {
+  async create(data: { roomId: number; startDate: string; endDate: string }) {
     const { roomId, startDate, endDate } = data;
-
-    if (new Date(startDate) >= new Date(endDate)) {
-      throw new BadRequestException('End date must be after start date');
-    }
 
     try {
       const overlap = await this.prisma.reservation.findFirst({
@@ -61,7 +53,7 @@ export class ReservationsService {
     }
   }
 
-  async update(id: number, data: UpdateReservationDto) {
+  async update(id: number, data: { startDate: string; endDate: string }) {
     const reservation = await this.prisma.reservation.findUnique({
       where: { id },
     });
@@ -70,22 +62,14 @@ export class ReservationsService {
       throw new BadRequestException('Reservation not found');
     }
 
-    if (
-      data.startDate &&
-      data.endDate &&
-      new Date(data.startDate) >= new Date(data.endDate)
-    ) {
-      throw new BadRequestException('End date must be after start date');
-    }
-
     const { roomId } = reservation;
 
     const conflict = await this.prisma.reservation.findFirst({
       where: {
         roomId,
         id: { not: id },
-        startDate: { lt: new Date(data.endDate || reservation.endDate) },
-        endDate: { gt: new Date(data.startDate || reservation.startDate) },
+        startDate: { lt: new Date(data.endDate) },
+        endDate: { gt: new Date(data.startDate) },
       },
     });
 
@@ -98,9 +82,8 @@ export class ReservationsService {
     return this.prisma.reservation.update({
       where: { id },
       data: {
-        startDate: data.startDate ? new Date(data.startDate) : undefined,
-        endDate: data.endDate ? new Date(data.endDate) : undefined,
-        roomId: data.roomId,
+        startDate: new Date(data.startDate),
+        endDate: new Date(data.endDate),
       },
     });
   }
