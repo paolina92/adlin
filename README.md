@@ -4,10 +4,12 @@ A full-stack web application that allows users to search and book meeting rooms 
 
 ## 📂 Project Structure
 
+```
 adlin/
 ├── backend/
-│ └── api/ → NestJS REST API
-└── frontend/ → Vue 3 app
+│   └── api/         NestJS REST API
+└── frontend/        Vue 3 app (WIP)
+```
 
 ## 🛠️ Backend:
 
