@@ -56,9 +56,12 @@ npm run test
 
 ### 🚀 Tech Stack
 
-- Vue 3 + TypeScript
-- Pinia (state management)
-- Vite (build tool)
+- Vue 3 – Progressive web framework
+- TypeScript – Strongly typed JavaScript
+- Vite – Lightning-fast build tool with instant HMR
+- Pinia – Intuitive and type-safe store for state management
+- Vue Query – Powerful async state manager (data fetching, caching, mutations)
+- Tailwind CSS v4 – Utility-first CSS framework for rapid UI development-
 
 ## 🤝 Author
 
