@@ -11,6 +11,16 @@ adlin/
 └── frontend/        Vue 3 app (WIP)
 ```
 
+### 📦 Package manager
+
+This project uses pnpm
+
+If you don’t have it yet, install it globally:
+
+```
+npm install -g pnpm
+```
+
 ## 🛠️ Backend:
 
 ### 🚀 Tech Stack
@@ -27,7 +37,7 @@ cd backend/api
 ```
 
 1. Install dependencies
-   npm install
+   pnpm install
 
 2. Generate the database
    npx prisma migrate dev --name init
@@ -36,7 +46,7 @@ cd backend/api
    npx prisma db seed
 
 4. Start the server
-   npm run start:dev
+   pnpm run start:dev
 
 ### 📚 API Documentation
 
@@ -49,7 +59,7 @@ Swagger includes all endpoints with query params, payload examples, and error ca
 
 ```
 cd backend/api
-npm run test
+pnpm run test
 ```
 
 ## 🖥️ Frontend:
