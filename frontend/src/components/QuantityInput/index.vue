@@ -1,1 +1,0 @@
-<template>quantity input</template>

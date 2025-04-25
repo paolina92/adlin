@@ -1,1 +1,0 @@
-<template>Base input number</template>
