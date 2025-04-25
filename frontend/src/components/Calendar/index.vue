@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
 import { Icon } from '@iconify/vue'
-import { CalendarDate } from '@internationalized/date'
-import type { AnyCalendarDate } from '@internationalized/date'
+import type { CalendarDate, AnyCalendarDate } from '@internationalized/date'
 import {
   CalendarCell,
   CalendarCellTrigger,
@@ -19,61 +17,35 @@ import {
 } from 'reka-ui'
 
 const props = defineProps<{
-  modelValue?: AnyCalendarDate
-  referenceDate?: AnyCalendarDate
-  onDateSelect?: (date: AnyCalendarDate) => void
+  modelValue: AnyCalendarDate
+  isDateUnavailable?: (date: CalendarDate) => boolean
 }>()
 
 const emit = defineEmits<{
-  'update:modelValue': [date: AnyCalendarDate]
-  change: [date: AnyCalendarDate]
+  'update:modelValue': [value: AnyCalendarDate]
 }>()
-
-const today = new Date()
-const todayDate = new CalendarDate(today.getFullYear(), today.getMonth() + 1, today.getDate())
-const referenceDate = props.referenceDate ?? todayDate
-const selectedDate = ref<AnyCalendarDate>(props.modelValue ?? referenceDate)
-
-const isDateUnavailable = (date: CalendarDate) => {
-  return date.compare(referenceDate) < 0
-}
-
-const handleDateSelect = (date: AnyCalendarDate) => {
-  props.onDateSelect?.(date)
-  emit('change', date)
-  emit('update:modelValue', date)
-}
-
-watch(selectedDate, newDate => {
-  handleDateSelect(newDate)
-})
-
-watch(() => props.modelValue, (newValue) => {
-  if (newValue) {
-    selectedDate.value = newValue
-  }
-})
-
-onMounted(() => {
-  handleDateSelect(selectedDate.value)
-})
 </script>
 
 <template>
   <CalendarRoot
     v-slot="{ weekDays, grid }"
-    v-model="selectedDate"
-    :is-date-unavailable="isDateUnavailable"
+    :model-value="props.modelValue"
+    :is-date-unavailable="props.isDateUnavailable"
+    :prevent-deselect="true"
     fixed-weeks
     class="mt-6 rounded-xl bg-white p-4 shadow-sm border"
+    @update:model-value="emit('update:modelValue', $event)"
   >
+    <!-- Header -->
     <CalendarHeader class="flex items-center justify-between">
       <CalendarPrev
         class="inline-flex items-center cursor-pointer text-black justify-center rounded-md bg-transparent w-7 h-7 hover:bg-white/50 active:scale-98 active:transition-all focus:shadow-[0_0_0_2px] focus:shadow-black"
       >
         <Icon icon="radix-icons:chevron-left" class="w-4 h-4" />
       </CalendarPrev>
+
       <CalendarHeading class="text-sm text-black font-medium" />
+
       <CalendarNext
         class="inline-flex items-center cursor-pointer justify-center text-black rounded-md bg-transparent w-7 h-7 hover:bg-white/50 active:scale-98 active:transition-all focus:shadow-[0_0_0_2px] focus:shadow-black"
       >
@@ -81,6 +53,7 @@ onMounted(() => {
       </CalendarNext>
     </CalendarHeader>
 
+    <!-- Grid -->
     <div class="flex flex-col space-y-4 pt-4 sm:flex-row sm:space-x-4 sm:space-y-0">
       <CalendarGrid
         v-for="month in grid"

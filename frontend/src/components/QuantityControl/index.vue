@@ -1,35 +1,20 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { computed } from 'vue'
 
 const props = defineProps<{
-  modelValue?: number
-  defaultValue?: number
+  modelValue: number
   min?: number
   max?: number
   label?: string
-  onChange?: (value: number) => void
 }>()
 
 const emit = defineEmits<{
   'update:modelValue': [value: number]
-  change: [value: number]
 }>()
 
-const quantity = ref<number>(props.modelValue ?? props.defaultValue ?? props.min ?? 0)
-
-watch(
-  () => props.modelValue,
-  newVal => {
-    if (typeof newVal === 'number') {
-      quantity.value = newVal
-    }
-  }
-)
-
-watch(quantity, newVal => {
-  emit('update:modelValue', newVal)
-  emit('change', newVal)
-  if (props.onChange) props.onChange(newVal)
+const quantity = computed({
+  get: () => props.modelValue,
+  set: val => emit('update:modelValue', val),
 })
 
 function increment() {
@@ -43,10 +28,6 @@ function decrement() {
     quantity.value -= 1
   }
 }
-
-onMounted(() => {
-  emit('change', quantity.value)
-})
 </script>
 
 <template>
@@ -55,23 +36,25 @@ onMounted(() => {
     <div class="flex items-center">
       <button
         type="button"
-        class="px-3 py-1 rounded-l-md bg-brand text-white text-sm hover:bg-brand-hover active:scale-95 transition"
+        class="px-3 py-1 rounded-l-md bg-brand text-white text-sm hover:bg-brand-hover active:scale-95 transition cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+        :disabled="quantity <= (props.min ?? 0)"
         @click="decrement"
       >
         -
       </button>
 
       <input
-        v-model="quantity"
+        v-model.number="quantity"
         type="number"
-        class="w-50 text-center border border-gray-300 px-2 py-1 text-sm focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
         :min="props.min ?? 0"
         :max="props.max"
+        class="w-50 text-center border border-gray-300 px-2 py-1 text-sm focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
       />
 
       <button
         type="button"
-        class="px-3 py-1 rounded-r-md bg-brand text-white text-sm hover:bg-brand-hover active:scale-95 transition"
+        class="px-3 py-1 rounded-r-md bg-brand text-white text-sm hover:bg-brand-hover active:scale-95 transition cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+        :disabled="props.max !== undefined && quantity >= props.max"
         @click="increment"
       >
         +
