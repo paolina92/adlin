@@ -19,31 +19,43 @@ import {
 } from 'reka-ui'
 
 const props = defineProps<{
+  modelValue?: AnyCalendarDate
+  referenceDate?: AnyCalendarDate
   onDateSelect?: (date: AnyCalendarDate) => void
 }>()
 
 const emit = defineEmits<{
+  'update:modelValue': [date: AnyCalendarDate]
   change: [date: AnyCalendarDate]
 }>()
 
 const today = new Date()
 const todayDate = new CalendarDate(today.getFullYear(), today.getMonth() + 1, today.getDate())
-const selectedDate = ref(todayDate)
+const referenceDate = props.referenceDate ?? todayDate
+const selectedDate = ref<AnyCalendarDate>(props.modelValue ?? referenceDate)
+
 const isDateUnavailable = (date: CalendarDate) => {
-  return date.compare(todayDate) < 0
+  return date.compare(referenceDate) < 0
 }
 
 const handleDateSelect = (date: AnyCalendarDate) => {
   props.onDateSelect?.(date)
   emit('change', date)
+  emit('update:modelValue', date)
 }
-
-onMounted(() => {
-  handleDateSelect(selectedDate.value)
-})
 
 watch(selectedDate, newDate => {
   handleDateSelect(newDate)
+})
+
+watch(() => props.modelValue, (newValue) => {
+  if (newValue) {
+    selectedDate.value = newValue
+  }
+})
+
+onMounted(() => {
+  handleDateSelect(selectedDate.value)
 })
 </script>
 
