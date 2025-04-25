@@ -3,8 +3,37 @@
 
 @theme {
   --font-bricolage: 'Bricolage Grotesque', sans-serif;
+  
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-brand: #0062D6;
+  --color-brand-hover: #00418D;
 }
 
 body {
   font-family: var(--font-bricolage);
 }
+
+/* 🌿 Calendar states */
+
+[data-outside-view] {
+  @apply text-black/30;
+}
+
+[data-selected] {
+  @apply !bg-brand text-white;
+}
+
+[data-highlighted] {
+  @apply bg-brand/30;
+}
+
+[data-unavailable] {
+  @apply pointer-events-none text-black/30 line-through;
+}
+
+[data-today]::before {
+  content: '';
+  @apply block absolute top-[5px] w-1 h-1 rounded-full bg-brand;
+}
+
