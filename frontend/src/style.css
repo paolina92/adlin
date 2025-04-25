@@ -3,11 +3,11 @@
 
 @theme {
   --font-bricolage: 'Bricolage Grotesque', sans-serif;
-  
+
   --color-white: #ffffff;
   --color-black: #000000;
-  --color-brand: #0062D6;
-  --color-brand-hover: #00418D;
+  --color-brand: #0062d6;
+  --color-brand-hover: #00418d;
 }
 
 body {
@@ -36,4 +36,3 @@ body {
   content: '';
   @apply block absolute top-[5px] w-1 h-1 rounded-full bg-brand;
 }
-

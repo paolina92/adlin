@@ -23,11 +23,7 @@ const props = defineProps<{
 }>()
 
 const today = new Date()
-const todayDate = new CalendarDate(
-  today.getFullYear(),
-  today.getMonth() + 1,
-  today.getDate()
-)
+const todayDate = new CalendarDate(today.getFullYear(), today.getMonth() + 1, today.getDate())
 const selectedDate = ref(todayDate)
 const isDateUnavailable = (date: CalendarDate) => {
   return date.compare(todayDate) < 0
@@ -41,15 +37,15 @@ onMounted(() => {
   handleDateSelect(selectedDate.value)
 })
 
-watch(selectedDate, (newDate) => {
+watch(selectedDate, newDate => {
   handleDateSelect(newDate)
 })
 </script>
 
 <template>
   <CalendarRoot
-    v-model="selectedDate"
     v-slot="{ weekDays, grid }"
+    v-model="selectedDate"
     :is-date-unavailable="isDateUnavailable"
     fixed-weeks
     class="mt-6 rounded-xl bg-white p-4 shadow-sm border"
@@ -68,9 +64,7 @@ watch(selectedDate, (newDate) => {
       </CalendarNext>
     </CalendarHeader>
 
-    <div
-      class="flex flex-col space-y-4 pt-4 sm:flex-row sm:space-x-4 sm:space-y-0"
-    >
+    <div class="flex flex-col space-y-4 pt-4 sm:flex-row sm:space-x-4 sm:space-y-0">
       <CalendarGrid
         v-for="month in grid"
         :key="month.value.toString()"

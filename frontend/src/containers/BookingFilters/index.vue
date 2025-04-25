@@ -12,7 +12,7 @@ function handleDateSelect(date: AnyCalendarDate) {
 </script>
 
 <template>
-  <div>
+  <div class="flex flex-col items-center gap-4">
     <Calendar :on-date-select="handleDateSelect" />
     <QuantityControl v-model="capacity" />
   </div>

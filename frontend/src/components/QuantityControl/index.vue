@@ -38,27 +38,28 @@ function decrement() {
 </script>
 
 <template>
-  <div>
+  <div class="flex flex-col gap-2">
+    <div class="font-semibold">Minimum capacity</div>
     <div class="flex items-center">
       <button
         type="button"
-        @click="decrement"
         class="px-3 py-1 rounded-l-md bg-brand text-white text-sm hover:bg-brand-hover active:scale-95 transition"
+        @click="decrement"
       >
         -
       </button>
 
       <input
-        type="number"
         v-model="quantity"
+        type="number"
         class="w-50 text-center border border-gray-300 px-2 py-1 text-sm focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
         min="0"
       />
 
       <button
         type="button"
-        @click="increment"
         class="px-3 py-1 rounded-r-md bg-brand text-white text-sm hover:bg-brand-hover active:scale-95 transition"
+        @click="increment"
       >
         +
       </button>
