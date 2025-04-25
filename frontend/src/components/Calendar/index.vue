@@ -22,6 +22,10 @@ const props = defineProps<{
   onDateSelect?: (date: AnyCalendarDate) => void
 }>()
 
+const emit = defineEmits<{
+  change: [date: AnyCalendarDate]
+}>()
+
 const today = new Date()
 const todayDate = new CalendarDate(today.getFullYear(), today.getMonth() + 1, today.getDate())
 const selectedDate = ref(todayDate)
@@ -31,6 +35,7 @@ const isDateUnavailable = (date: CalendarDate) => {
 
 const handleDateSelect = (date: AnyCalendarDate) => {
   props.onDateSelect?.(date)
+  emit('change', date)
 }
 
 onMounted(() => {

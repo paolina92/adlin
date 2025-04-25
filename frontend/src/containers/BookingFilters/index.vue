@@ -9,11 +9,15 @@ const capacity = ref(1)
 function handleDateSelect(date: AnyCalendarDate) {
   console.log('Date sélectionnée :', date.toString())
 }
+
+function handleCapacityChange(newValue: number) {
+  console.log('Capacité modifiée :', newValue)
+}
 </script>
 
 <template>
   <div class="flex flex-col items-center gap-4">
-    <Calendar :on-date-select="handleDateSelect" />
-    <QuantityControl v-model="capacity" />
+    <Calendar @change="handleDateSelect" />
+    <QuantityControl v-model="capacity" @change="handleCapacityChange" />
   </div>
 </template>
