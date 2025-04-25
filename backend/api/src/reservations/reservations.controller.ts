@@ -44,7 +44,7 @@ export class ReservationsController {
   @ApiResponse({ status: 400, description: 'Conflict or invalid data' })
   @Post()
   async create(
-    @Body() body: { roomId: number; startDate: string; endDate: string },
+    @Body() body: { roomId: number; startDate: Date; endDate: Date },
   ) {
     return this.reservationsService.create(body);
   }
@@ -65,7 +65,7 @@ export class ReservationsController {
   @Put(':id')
   async update(
     @Param('id') id: string,
-    @Body() body: { startDate: string; endDate: string },
+    @Body() body: { startDate: Date; endDate: Date },
   ) {
     return this.reservationsService.update(Number(id), body);
   }

@@ -1,11 +1,16 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import {
+  CreateReservationDto,
+  UpdateReservationDto,
+  Reservation,
+} from './reservations.types';
 
 @Injectable()
 export class ReservationsService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll(startDate: string, endDate: string) {
+  async findAll(startDate: string, endDate: string): Promise<Reservation[]> {
     return this.prisma.reservation.findMany({
       where: {
         startDate: { gte: new Date(startDate) },
@@ -19,7 +24,7 @@ export class ReservationsService {
     });
   }
 
-  async create(data: { roomId: number; startDate: string; endDate: string }) {
+  async create(data: CreateReservationDto): Promise<Reservation> {
     const { roomId, startDate, endDate } = data;
 
     try {
@@ -53,7 +58,7 @@ export class ReservationsService {
     }
   }
 
-  async update(id: number, data: { startDate: string; endDate: string }) {
+  async update(id: number, data: UpdateReservationDto): Promise<Reservation> {
     const reservation = await this.prisma.reservation.findUnique({
       where: { id },
     });

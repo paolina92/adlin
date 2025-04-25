@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { Room, Equipment } from './rooms.types';
 
 @Injectable()
 export class RoomsService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll(capacity?: number, equipment?: string) {
+  async findAll(capacity?: number, equipment?: Equipment): Promise<Room[]> {
     const rooms = await this.prisma.room.findMany({
       include: {
         equipements: true,

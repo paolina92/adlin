@@ -34,8 +34,8 @@ describe('ReservationsService', () => {
   it('should create a reservation when no conflict exists', async () => {
     const data = {
       roomId: 1,
-      startDate: '2025-05-01T10:00:00Z',
-      endDate: '2025-05-01T12:00:00Z',
+      startDate: new Date('2025-05-01T10:00:00Z'),
+      endDate: new Date('2025-05-01T12:00:00Z'),
     };
 
     prismaMock.reservation.findFirst.mockResolvedValue(null); // aucun conflit
@@ -77,8 +77,8 @@ describe('ReservationsService', () => {
   it('should throw if the room is already booked on that time slot', async () => {
     const data = {
       roomId: 1,
-      startDate: '2025-05-01T10:00:00Z',
-      endDate: '2025-05-01T12:00:00Z',
+      startDate: new Date('2025-05-01T10:00:00Z'),
+      endDate: new Date('2025-05-01T12:00:00Z'),
     };
 
     prismaMock.reservation.findFirst.mockResolvedValue({ id: 99 }); // conflit trouvé
