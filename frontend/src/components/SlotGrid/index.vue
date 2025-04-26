@@ -43,8 +43,9 @@ function isSlotSelected(rowId: string, columnId: string) {
 }
 
 function isSlotHovered(rowId: string, columnId: string) {
-  if (!selectionStart.value) return false
-  return hoveredSlots.value.some(s => s.rowId === rowId && s.columnId === columnId)
+  return selectionStart.value !== null && hoveredSlots.value.some(
+    s => s.rowId === rowId && s.columnId === columnId
+  )
 }
 
 function getSelectedSlotsGroup(start: Slot, end: Slot): Slot[] {
@@ -60,7 +61,32 @@ function getSelectedSlotsGroup(start: Slot, end: Slot): Slot[] {
   }))
 }
 
-// Selection
+function getGroupedSlots(slot: Slot) {
+  const group: Slot[] = []
+  const startIdx = props.columns.findIndex(c => c.id === slot.columnId)
+
+  let idx = startIdx
+  while (idx < props.columns.length) {
+    const col = props.columns[idx]
+    if (isSlotSelected(slot.rowId, col.id)) {
+      group.push({ rowId: slot.rowId, columnId: col.id })
+      idx++
+    } else {
+      break
+    }
+  }
+
+  return group
+}
+
+function resetDraggingState() {
+  draggingSlots.value = null
+  dragStart.value = null
+  selectionStart.value = null
+  hoveredSlots.value = []
+}
+
+// Selection events
 function onMouseDown(rowId: string, columnId: string) {
   selectionStart.value = { rowId, columnId }
   hoveredSlots.value = [{ rowId, columnId }]
@@ -75,23 +101,18 @@ function onMouseUp(rowId: string, columnId: string) {
   if (!selectionStart.value) return
 
   const clickedSlot = { rowId, columnId }
-
   let slots: Slot[] = []
 
   if (hoveredSlots.value.length > 1) {
-    // Si on vient de glisser -> on utilise les hovered slots
     slots = [...hoveredSlots.value]
   } else if (isSlotSelected(rowId, columnId)) {
-    // Si on clique sur un slot sélectionné -> on récupère tout le groupe
     slots = getGroupedSlots(clickedSlot)
   } else {
-    // Sinon (simple clic) -> juste le slot
     slots = [clickedSlot]
   }
 
   if (slots.length) {
     if (slots.every(s => isSlotSelected(s.rowId, s.columnId))) {
-      // Tous les slots sont déjà sélectionnés ➔ suppression
       if (confirm('Delete this slot group?')) {
         selectedSlots.value = selectedSlots.value.filter(sel => {
           return !slots.some(slot => sel.rowId === slot.rowId && sel.columnId === slot.columnId)
@@ -99,7 +120,6 @@ function onMouseUp(rowId: string, columnId: string) {
         emit('delete', { slots })
       }
     } else {
-      // Sinon ➔ création
       if (confirm('Create this slot group?')) {
         selectedSlots.value.push(...slots)
         emit('create', { slots })
@@ -107,25 +127,17 @@ function onMouseUp(rowId: string, columnId: string) {
     }
   }
 
-  selectionStart.value = null
-  hoveredSlots.value = []
+  resetDraggingState()
 }
 
-// Dragging
+// Drag and drop events
 function onDragStart(slot: Slot) {
   draggingSlots.value = getGroupedSlots(slot)
   dragStart.value = slot
 }
 
-function onDragOver(event: DragEvent, rowId: string, columnId: string) {
+function onDragOver(event: DragEvent) {
   event.preventDefault()
-}
-
-function resetDraggingState() {
-  draggingSlots.value = null
-  dragStart.value = null
-  selectionStart.value = null
-  hoveredSlots.value = []
 }
 
 function onDrop(rowId: string, columnId: string) {
@@ -167,25 +179,6 @@ function onDrop(rowId: string, columnId: string) {
 
   resetDraggingState()
 }
-
-
-function getGroupedSlots(slot: Slot) {
-  const group = []
-  const startIdx = props.columns.findIndex(c => c.id === slot.columnId)
-
-  let idx = startIdx
-  while (idx < props.columns.length) {
-    const col = props.columns[idx]
-    if (isSlotSelected(slot.rowId, col.id)) {
-      group.push({ rowId: slot.rowId, columnId: col.id })
-      idx++
-    } else {
-      break
-    }
-  }
-
-  return group
-}
 </script>
 
 <template>
@@ -202,31 +195,27 @@ function getGroupedSlots(slot: Slot) {
       </div>
 
       <!-- Rows -->
-      <template v-for="(row, r) in rows" :key="`row-${r}`">
+      <template v-for="row in rows" :key="row.id">
         <div class="border p-2 font-medium bg-white">{{ row.label }}</div>
 
         <div
-          v-for="(column, c) in columns"
-          :key="`cell-${r}-${c}`"
+          v-for="column in columns"
+          :key="`${row.id}-${column.id}`"
           :class="[
             'border p-2 text-center cursor-pointer transition-colors duration-200',
             {
               'bg-brand/20': isSlotSelected(row.id, column.id),
-              'bg-brand/10': selectionStart && isSlotHovered(row.id, column.id),
+              'bg-brand/10': isSlotHovered(row.id, column.id),
             },
           ]"
           :draggable="isSlotSelected(row.id, column.id)"
           @mousedown="onMouseDown(row.id, column.id)"
           @mouseenter="onMouseEnter(row.id, column.id)"
           @mouseup="onMouseUp(row.id, column.id)"
-          @dragstart="
-            isSlotSelected(row.id, column.id)
-              ? onDragStart({ rowId: row.id, columnId: column.id })
-              : undefined
-          "
-          @dragover="onDragOver($event, row.id, column.id)"
+          @dragstart="isSlotSelected(row.id, column.id) ? onDragStart({ rowId: row.id, columnId: column.id }) : undefined"
+          @dragover="onDragOver"
           @drop="onDrop(row.id, column.id)"
-        ></div>
+        />
       </template>
     </div>
   </div>
