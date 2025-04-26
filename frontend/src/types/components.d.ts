@@ -17,6 +17,6 @@ declare module '@/pages/*' {
 }
 
 declare module '@/composables/*' {
-  const composable: any
+  const composable: unknown
   export default composable
 }
