@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useSlotSelection } from '@/composables/useSlotSelection'
-import type { Row, TimeColumn, Slot } from '@/composables/useSlotSelection'
+import type { Row, TimeColumn, Slot } from '@/types/interfaces'
 import SlotGridHeader from '@/components/SlotGrid/SlotGridHeader'
 import SlotGridRow from '@/components/SlotGrid/SlotGridRow'
 

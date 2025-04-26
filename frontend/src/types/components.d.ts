@@ -20,3 +20,8 @@ declare module '@/composables/*' {
   const composable: unknown
   export default composable
 }
+
+declare module '@/types/*' {
+  const type: unknown
+  export default type
+}

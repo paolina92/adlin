@@ -1,20 +1,6 @@
 import { ref, computed, nextTick } from 'vue'
 import type { Ref } from 'vue'
-
-export interface Slot {
-  rowId: string
-  columnId: string
-}
-
-export interface TimeColumn {
-  id: string
-  label: string
-}
-
-export interface Row {
-  id: string
-  label: string
-}
+import type { Slot, TimeColumn } from '@/types/interfaces'
 
 export interface UseSlotSelectionReturn {
   isSelected: (slot: Slot) => boolean

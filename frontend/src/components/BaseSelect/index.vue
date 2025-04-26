@@ -19,7 +19,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  'update:modelValue': [value: string | undefined]
+  'update:modelValue': [value: string | undefined | null]
 }>()
 
 function clearSelection() {
@@ -34,7 +34,7 @@ function clearSelection() {
     <div class="flex items-center gap-2">
       <SelectRoot
         :model-value="props.modelValue"
-        @update:model-value="emit('update:modelValue', $event)"
+        @update:model-value="emit('update:modelValue', $event?.toString())"
       >
         <SelectTrigger
           class="inline-flex min-w-65 items-center justify-between rounded-lg px-4 text-sm h-[35px] gap-2 bg-white text-black border shadow-sm hover:bg-stone-50 focus:outline-none focus:ring-2 focus:ring-brand"

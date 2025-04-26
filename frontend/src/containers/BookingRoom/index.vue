@@ -1,11 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import SlotGrid from '@/components/SlotGrid'
-
-interface Slot {
-  rowId: string
-  columnId: string
-}
+import type { Slot } from '@/types/interfaces'
 
 // 🧩 MOCK : Les colonnes horaires (8h → 16h)
 const columns = Array.from({ length: 9 }, (_, i) => {

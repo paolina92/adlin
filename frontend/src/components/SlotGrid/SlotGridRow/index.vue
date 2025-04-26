@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Row, TimeColumn, Slot } from '@/composables/useSlotSelection'
+import type { Row, TimeColumn, Slot } from '@/types/interfaces'
 
 const props = defineProps<{
   columns: TimeColumn[]
