@@ -2,7 +2,10 @@
 import { ref } from 'vue'
 import SlotGrid from '@/components/SlotGrid'
 
-interface Slot { rowId: string; columnId: string }
+interface Slot {
+  rowId: string
+  columnId: string
+}
 
 // 🧩 MOCK : Les colonnes horaires (8h → 16h)
 const columns = Array.from({ length: 9 }, (_, i) => {
@@ -13,8 +16,8 @@ const columns = Array.from({ length: 9 }, (_, i) => {
 // 🧩 MOCK : Les salles
 const rooms = [
   { id: 1, name: 'Arena', capacity: 30 },
-  { id: 2, name: 'Blue',  capacity:  4 },
-  { id: 3, name: 'Red',   capacity:  6 },
+  { id: 2, name: 'Blue', capacity: 4 },
+  { id: 3, name: 'Red', capacity: 6 },
 ]
 const rows = rooms.map(r => ({ id: r.id.toString(), label: `${r.name} (${r.capacity}p)` }))
 
@@ -25,7 +28,7 @@ const reservations = [
 ]
 
 // 🎯 Mapping : Reservation → Slot[]
-function slotsFor(res: typeof reservations[0]): Slot[] {
+function slotsFor(res: (typeof reservations)[0]): Slot[] {
   const arr: Slot[] = []
   for (let h = res.start; h < res.end; h++) {
     arr.push({ rowId: res.roomId.toString(), columnId: `${h}:00` })
@@ -47,9 +50,21 @@ const currentGroups = ref<Slot[][]>(initialGroups.value)
       :columns="columns"
       :initial-groups="currentGroups"
       :allow-cross-row-drop="false"
-      @create="({ slots }) => { /* mutation create */ }"
-      @move="({ from, to }) => { /* mutation update */ }"
-      @delete="({ slots }) => { /* mutation delete */ }"
+      @create="
+        ({ slots }) => {
+          /* mutation create */
+        }
+      "
+      @move="
+        ({ from, to }) => {
+          /* mutation update */
+        }
+      "
+      @delete="
+        ({ slots }) => {
+          /* mutation delete */
+        }
+      "
     />
   </div>
 </template>

@@ -15,3 +15,8 @@ declare module '@/pages/*' {
   const component: DefineComponent<Record<string, never>, Record<string, never>, unknown>
   export default component
 }
+
+declare module '@/composables/*' {
+  const composable: any
+  export default composable
+}
