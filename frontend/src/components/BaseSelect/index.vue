@@ -65,8 +65,8 @@ function clearSelection() {
       <!-- Clear Button -->
       <button
         v-if="props.modelValue"
-        @click="clearSelection"
         class="absolute -right-12 text-sm text-black hover:underline focus:outline-none"
+        @click="clearSelection"
       >
         Clear
       </button>
