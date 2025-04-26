@@ -121,6 +121,13 @@ function onDragOver(event: DragEvent, rowId: string, columnId: string) {
   event.preventDefault()
 }
 
+function resetDraggingState() {
+  draggingSlots.value = null
+  dragStart.value = null
+  selectionStart.value = null
+  hoveredSlots.value = []
+}
+
 function onDrop(rowId: string, columnId: string) {
   if (!draggingSlots.value || !dragStart.value) return
 
@@ -129,10 +136,7 @@ function onDrop(rowId: string, columnId: string) {
 
   if (dropStartIndex + dragDuration > props.columns.length) {
     alert('Not enough space to move the slot')
-    draggingSlots.value = null
-    dragStart.value = null
-    selectionStart.value = null
-    hoveredSlots.value = []
+    resetDraggingState()
     return
   }
 
@@ -149,10 +153,7 @@ function onDrop(rowId: string, columnId: string) {
 
   if (conflict) {
     alert('Cannot move: conflict with existing slot')
-    draggingSlots.value = null
-    dragStart.value = null
-    selectionStart.value = null
-    hoveredSlots.value = []
+    resetDraggingState()
     return
   }
 
@@ -164,10 +165,7 @@ function onDrop(rowId: string, columnId: string) {
     emit('move', { from: draggingSlots.value, to: newSlots })
   }
 
-  draggingSlots.value = null
-  dragStart.value = null
-  selectionStart.value = null
-  hoveredSlots.value = []
+  resetDraggingState()
 }
 
 
