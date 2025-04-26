@@ -65,12 +65,25 @@ function getGroupedSlots(slot: Slot) {
   const group: Slot[] = []
   const startIdx = props.columns.findIndex(c => c.id === slot.columnId)
 
-  let idx = startIdx
-  while (idx < props.columns.length) {
-    const col = props.columns[idx]
+  // Regarde vers la gauche
+  let leftIdx = startIdx
+  while (leftIdx >= 0) {
+    const col = props.columns[leftIdx]
+    if (isSlotSelected(slot.rowId, col.id)) {
+      group.unshift({ rowId: slot.rowId, columnId: col.id }) // ajoute au début
+      leftIdx--
+    } else {
+      break
+    }
+  }
+
+  // Regarde vers la droite
+  let rightIdx = startIdx + 1
+  while (rightIdx < props.columns.length) {
+    const col = props.columns[rightIdx]
     if (isSlotSelected(slot.rowId, col.id)) {
       group.push({ rowId: slot.rowId, columnId: col.id })
-      idx++
+      rightIdx++
     } else {
       break
     }
