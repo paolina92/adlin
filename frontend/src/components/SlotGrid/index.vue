@@ -34,6 +34,8 @@ const selectionStart = ref<Slot | null>(null)
 const hoveredSlots   = ref<Slot[]>([])
 const draggingSlots  = ref<Slot[] | null>(null)
 const dragStart      = ref<Slot | null>(null)
+// new: drop target slots
+const dropTargetSlots = ref<Slot[]>([])
 
 // ── Utils ─────────────────────────────────────────────────────────────────────
 function isSlotSelected(rowId: string, columnId: string) {
@@ -42,6 +44,10 @@ function isSlotSelected(rowId: string, columnId: string) {
 function isSlotHovered(rowId: string, columnId: string) {
   return selectionStart.value !== null
     && hoveredSlots.value.some(s => s.rowId === rowId && s.columnId === columnId)
+}
+function isDropTarget(rowId: string, columnId: string) {
+  return draggingSlots.value !== null
+    && dropTargetSlots.value.some(s => s.rowId === rowId && s.columnId === columnId)
 }
 function getSelectedSlotsGroup(start: Slot, end: Slot): Slot[] {
   if (start.rowId !== end.rowId) return []
@@ -57,7 +63,6 @@ function findGroupForSlot(clicked: Slot): Slot[] {
     ) || [clicked]
   )
 }
-// Check if a slot has an adjacent neighbor in its group
 function hasGroupNeighbor(slot: Slot, offset: number): boolean {
   const idx = columns.findIndex(c => c.id === slot.columnId)
   const neighborCol = columns[idx + offset]
@@ -65,11 +70,12 @@ function hasGroupNeighbor(slot: Slot, offset: number): boolean {
   const group = findGroupForSlot(slot)
   return group.some(s => s.rowId === slot.rowId && s.columnId === neighborCol.id)
 }
-function resetDraggingState() {
+function resetStates() {
   draggingSlots.value  = null
   dragStart.value      = null
   selectionStart.value = null
   hoveredSlots.value   = []
+  dropTargetSlots.value = []
 }
 
 // ── Sélection (click / drag) ─────────────────────────────────────────────────
@@ -92,7 +98,7 @@ function onMouseUp(rowId: string, columnId: string) {
   } else {
     slots = [clicked]
   }
-  if (!slots.length) { resetDraggingState(); return }
+  if (!slots.length) { resetStates(); return }
   const allSel = slots.every(s => isSlotSelected(s.rowId, s.columnId))
   if (allSel) {
     if (confirm('Delete this slot group?')) {
@@ -107,7 +113,7 @@ function onMouseUp(rowId: string, columnId: string) {
       emit('create', { slots })
     }
   }
-  resetDraggingState()
+  resetStates()
 }
 
 // ── Drag & Drop ───────────────────────────────────────────────────────────────
@@ -116,6 +122,7 @@ async function onDragStart(event: DragEvent, slot: Slot) {
   draggingSlots.value = [...group]
   dragStart.value     = slot
   await nextTick()
+  // create ghost
   const ghost = document.createElement('div')
   ghost.style.display       = 'flex'
   ghost.style.position      = 'absolute'
@@ -141,29 +148,40 @@ async function onDragStart(event: DragEvent, slot: Slot) {
   event.dataTransfer?.setDragImage(ghost, r.width/2, r.height/2)
   setTimeout(() => document.body.removeChild(ghost), 0)
 }
-function onDragOver(event: DragEvent) { event.preventDefault() }
+function onDragOver(event: DragEvent) {
+  event.preventDefault()
+}
+function onDragEnter(rowId: string, columnId: string) {
+  if (!draggingSlots.value) return
+  // compute drop target group
+  const startIdx = columns.findIndex(c => c.id === columnId)
+  const length = draggingSlots.value.length
+  if (startIdx + length > columns.length) {
+    dropTargetSlots.value = []
+  } else {
+    dropTargetSlots.value = columns
+      .slice(startIdx, startIdx + length)
+      .map(c => ({ rowId: rowId, columnId: c.id }))
+  }
+}
 function onDrop(rowId: string, columnId: string) {
   if (!draggingSlots.value || !dragStart.value) return
-  if (!allowCrossRowDrop && rowId !== draggingSlots.value[0].rowId) {
-    alert('Cannot move slot to another row'); resetDraggingState(); return
-  }
-  const duration     = draggingSlots.value.length
-  const startIdxDrop = columns.findIndex(c => c.id === columnId)
-  if (startIdxDrop + duration > columns.length) {
-    alert('Not enough space to move the slot'); resetDraggingState(); return
-  }
-  const newSlots = columns.slice(startIdxDrop, startIdxDrop + duration).map(c => ({ rowId, columnId: c.id }))
+  // finalize move
+  const newSlots = dropTargetSlots.value
+  if (!newSlots.length) { resetStates(); return }
   const fromGroup = findGroupForSlot(dragStart.value)
   const conflict = newSlots.some(ns =>
-    selectedSlots.value.some(es => es.rowId === rowId && es.columnId === ns.columnId && !fromGroup.some(fs => fs.rowId === es.rowId && fs.columnId === es.columnId))
+    selectedSlots.value.some(es => es.rowId === ns.rowId && es.columnId === ns.columnId &&
+      !fromGroup.some(fs => fs.rowId === es.rowId && fs.columnId === es.columnId)
+    )
   )
-  if (conflict) { alert('Cannot move: conflict'); resetDraggingState(); return }
+  if (conflict) { alert('Cannot move: conflict'); resetStates(); return }
   if (confirm('Move this slot group?')) {
     selectedGroups.value = selectedGroups.value.filter(g => g !== fromGroup)
     selectedGroups.value.push(newSlots)
     emit('move', { from: fromGroup, to: newSlots })
   }
-  resetDraggingState()
+  resetStates()
 }
 </script>
 
@@ -187,6 +205,7 @@ function onDrop(rowId: string, columnId: string) {
           :class="{
             'bg-brand/20': isSlotSelected(row.id, col.id),
             'bg-brand/10': isSlotHovered(row.id, col.id),
+            'bg-gray-200': isDropTarget(row.id, col.id),
             'border-l-0': isSlotSelected(row.id, col.id) && hasGroupNeighbor({ rowId: row.id, columnId: col.id }, -1),
             'border-r-0': isSlotSelected(row.id, col.id) && hasGroupNeighbor({ rowId: row.id, columnId: col.id }, 1)
           }"
@@ -196,6 +215,7 @@ function onDrop(rowId: string, columnId: string) {
           @mouseup="onMouseUp(row.id, col.id)"
           @dragstart="e => isSlotSelected(row.id, col.id) && onDragStart(e, { rowId: row.id, columnId: col.id })"
           @dragover="onDragOver"
+          @dragenter="() => onDragEnter(row.id, col.id)"
           @drop="() => onDrop(row.id, col.id)"
         />
       </template>
