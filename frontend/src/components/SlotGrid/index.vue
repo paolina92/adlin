@@ -1,109 +1,122 @@
 <script setup lang="ts">
 import { ref, computed, nextTick } from 'vue'
 
-interface TimeColumn { label: string; id: string }
-interface Row        { label: string; id: string }
+/**
+ * Interfaces representing the grid structure
+ */
+interface TimeColumn { id: string; label: string }
+interface Row        { id: string; label: string }
 interface Slot       { rowId: string; columnId: string }
 
-// ── Props ─────────────────────────────────────────────────────────────────────
-const {
-  rows,
-  columns,
-  initialGroups = [] as Slot[][],
-  allowCrossRowDrop = true,
-} = defineProps<{
-  rows: Row[]
-  columns: TimeColumn[]
-  /** Grouped initial selections */
-  initialGroups?: Slot[][]
-  allowCrossRowDrop?: boolean
+// Props and Emits
+const props = defineProps<{
+  rows: Row[]                     // list of rows (e.g., rooms)
+  columns: TimeColumn[]           // list of time columns
+  initialGroups?: Slot[][]        // initial reservation groups
+  allowCrossRowDrop?: boolean     // enable cross-row drag-and-drop
 }>()
+const { rows, columns, initialGroups = [], allowCrossRowDrop = true } = props
 
-// ── Emits ─────────────────────────────────────────────────────────────────────
 const emit = defineEmits<{
   (e: 'create', payload: { slots: Slot[] }): void
   (e: 'move',   payload: { from: Slot[]; to: Slot[] }): void
   (e: 'delete', payload: { slots: Slot[] }): void
 }>()
 
-// ── State ─────────────────────────────────────────────────────────────────────
-const selectedGroups = ref<Slot[][]>([...initialGroups])
-const selectedSlots = computed(() => selectedGroups.value.flat())
+// Reactive State
+const selectedGroups    = ref<Slot[][]>([...initialGroups])
+const selectedSlots     = computed(() => selectedGroups.value.flat())
+const selectionStart    = ref<Slot | null>(null)
+const hoveredSlots      = ref<Slot[]>([])
+const draggingSlots     = ref<Slot[] | null>(null)
+const dragOrigin        = ref<Slot | null>(null)
+const dropTargetSlots   = ref<Slot[]>([])
 
-const selectionStart = ref<Slot | null>(null)
-const hoveredSlots   = ref<Slot[]>([])
-const draggingSlots  = ref<Slot[] | null>(null)
-const dragStart      = ref<Slot | null>(null)
-// new: drop target slots
-const dropTargetSlots = ref<Slot[]>([])
+// === Utility Functions ===
 
-// ── Utils ─────────────────────────────────────────────────────────────────────
-function isSlotSelected(rowId: string, columnId: string) {
-  return selectedSlots.value.some(s => s.rowId === rowId && s.columnId === columnId)
-}
-function isSlotHovered(rowId: string, columnId: string) {
-  return selectionStart.value !== null
-    && hoveredSlots.value.some(s => s.rowId === rowId && s.columnId === columnId)
-}
-function isDropTarget(rowId: string, columnId: string) {
-  return draggingSlots.value !== null
-    && dropTargetSlots.value.some(s => s.rowId === rowId && s.columnId === columnId)
-}
-function getSelectedSlotsGroup(start: Slot, end: Slot): Slot[] {
-  if (start.rowId !== end.rowId) return []
-  const i1 = columns.findIndex(c => c.id === start.columnId)
-  const i2 = columns.findIndex(c => c.id === end.columnId)
-  const [from, to] = i1 < i2 ? [i1, i2] : [i2, i1]
-  return columns.slice(from, to + 1).map(c => ({ rowId: start.rowId, columnId: c.id }))
-}
-function findGroupForSlot(clicked: Slot): Slot[] {
-  return (
-    selectedGroups.value.find(g =>
-      g.some(s => s.rowId === clicked.rowId && s.columnId === clicked.columnId)
-    ) || [clicked]
+/**
+ * Check if a specific slot is selected
+ */
+function isSelected(slot: Slot): boolean {
+  return selectedSlots.value.some(
+    s => s.rowId === slot.rowId && s.columnId === slot.columnId
   )
 }
-function hasGroupNeighbor(slot: Slot, offset: number): boolean {
-  const idx = columns.findIndex(c => c.id === slot.columnId)
-  const neighborCol = columns[idx + offset]
-  if (!neighborCol) return false
-  const group = findGroupForSlot(slot)
-  return group.some(s => s.rowId === slot.rowId && s.columnId === neighborCol.id)
+
+/**
+ * Identify the group that contains a given slot, or return singleton
+ */
+function findGroup(slot: Slot): Slot[] {
+  return (
+    selectedGroups.value.find(group =>
+      group.some(s => s.rowId === slot.rowId && s.columnId === slot.columnId)
+    ) || [slot]
+  )
 }
-function resetStates() {
-  draggingSlots.value   = null
-  dragStart.value       = null
+
+/**
+ * Generate all contiguous slots between two slots on the same row
+ */
+function rangeSlots(start: Slot, end: Slot): Slot[] {
+  if (start.rowId !== end.rowId) return []
+  const idxStart = columns.findIndex(c => c.id === start.columnId)
+  const idxEnd   = columns.findIndex(c => c.id === end.columnId)
+  const [a, b]   = idxStart < idxEnd ? [idxStart, idxEnd] : [idxEnd, idxStart]
+  return columns.slice(a, b + 1).map(c => ({ rowId: start.rowId, columnId: c.id }))
+}
+
+/**
+ * Check if a slot has a neighbor in its group by offset (-1 for left, +1 for right)
+ */
+function hasNeighbor(slot: Slot, offset: number): boolean {
+  const idx = columns.findIndex(c => c.id === slot.columnId)
+  const neighbor = columns[idx + offset]
+  if (!neighbor) return false
+  return findGroup(slot).some(s => s.rowId === slot.rowId && s.columnId === neighbor.id)
+}
+
+/**
+ * Clear ongoing drag/selection states
+ */
+function resetState() {
   selectionStart.value  = null
   hoveredSlots.value    = []
+  draggingSlots.value   = null
+  dragOrigin.value      = null
   dropTargetSlots.value = []
 }
 
-// ── Sélection (click / drag) ─────────────────────────────────────────────────
-function onMouseDown(rowId: string, columnId: string) {
-  selectionStart.value = { rowId, columnId }
-  hoveredSlots.value   = [{ rowId, columnId }]
+// === Selection Handlers ===
+
+function handleMouseDown(slot: Slot) {
+  selectionStart.value = slot
+  hoveredSlots.value   = [slot]
 }
-function onMouseEnter(rowId: string, columnId: string) {
+
+function handleMouseEnter(slot: Slot) {
   if (!selectionStart.value) return
-  hoveredSlots.value = getSelectedSlotsGroup(selectionStart.value, { rowId, columnId })
+  hoveredSlots.value = rangeSlots(selectionStart.value, slot)
 }
-function onMouseUp(rowId: string, columnId: string) {
+
+function handleMouseUp(slot: Slot) {
   if (!selectionStart.value) return
-  const clicked: Slot = { rowId, columnId }
-  let slots: Slot[]
-  if (hoveredSlots.value.length > 1) {
-    slots = [...hoveredSlots.value]
-  } else if (isSlotSelected(rowId, columnId)) {
-    slots = findGroupForSlot(clicked)
-  } else {
-    slots = [clicked]
-  }
-  if (!slots.length) { resetStates(); return }
-  const allSel = slots.every(s => isSlotSelected(s.rowId, s.columnId))
-  if (allSel) {
+
+  // Determine target slots: drag vs click
+  const slots = hoveredSlots.value.length > 1
+    ? [...hoveredSlots.value]
+    : isSelected(slot)
+      ? findGroup(slot)
+      : [slot]
+
+  if (!slots.length) { resetState(); return }
+
+  const allSelected = slots.every(isSelected)
+  if (allSelected) {
     if (confirm('Delete this slot group?')) {
       selectedGroups.value = selectedGroups.value.filter(
-        g => !slots.every(s => g.some(gs => gs.rowId === s.rowId && gs.columnId === s.columnId))
+        group => !slots.every(s =>
+          group.some(gs => gs.rowId === s.rowId && gs.columnId === s.columnId)
+        )
       )
       emit('delete', { slots })
     }
@@ -113,16 +126,19 @@ function onMouseUp(rowId: string, columnId: string) {
       emit('create', { slots })
     }
   }
-  resetStates()
+
+  resetState()
 }
 
-// ── Drag & Drop ───────────────────────────────────────────────────────────────
-async function onDragStart(event: DragEvent, slot: Slot) {
-  const group = findGroupForSlot(slot)
+// === Drag & Drop Handlers ===
+
+async function handleDragStart(event: DragEvent, slot: Slot) {
+  const group = findGroup(slot)
   draggingSlots.value = [...group]
-  dragStart.value     = slot
+  dragOrigin.value    = slot
   await nextTick()
-  // create ghost
+
+  // build drag ghost
   const ghost = document.createElement('div')
   ghost.style.display       = 'flex'
   ghost.style.position      = 'absolute'
@@ -130,106 +146,133 @@ async function onDragStart(event: DragEvent, slot: Slot) {
   ghost.style.left          = '-10000px'
   ghost.style.pointerEvents = 'none'
   ghost.style.gap           = '2px'
-  draggingSlots.value!.forEach(s => {
-    const el = document.querySelector<HTMLElement>(`[data-slot="${s.rowId}-${s.columnId}"]`)
-    if (el) {
-      const rect = el.getBoundingClientRect()
-      const clone = el.cloneNode(true) as HTMLElement
+
+  // clone each cell
+  group.forEach(s => {
+    const cell = document.querySelector<HTMLElement>(
+      `[data-slot="${s.rowId}-${s.columnId}"]`
+    )
+    if (cell) {
+      const rect = cell.getBoundingClientRect()
+      const clone = cell.cloneNode(true) as HTMLElement
       clone.style.width     = `${rect.width}px`
       clone.style.height    = `${rect.height}px`
       clone.style.margin    = '0'
       clone.style.boxSizing = 'border-box'
-      clone.classList.remove('bg-brand/10','bg-brand/20')
+      clone.classList.remove('bg-brand/10', 'bg-brand/20')
       ghost.appendChild(clone)
     }
   })
+
   document.body.appendChild(ghost)
-  const r = ghost.getBoundingClientRect()
-  event.dataTransfer?.setDragImage(ghost, r.width/2, r.height/2)
+  const rect = ghost.getBoundingClientRect()
+  event.dataTransfer?.setDragImage(ghost, rect.width / 2, rect.height / 2)
   setTimeout(() => document.body.removeChild(ghost), 0)
 }
 
-function onDragOver(event: DragEvent) {
+function handleDragOver(event: DragEvent) {
   event.preventDefault()
 }
 
-function onDragEnter(rowId: string, columnId: string) {
+function handleDragEnter(target: Slot) {
   if (!draggingSlots.value) return
-  // block cross-row if disallowed
-  if (!allowCrossRowDrop && rowId !== draggingSlots.value[0].rowId) {
+  const originRow = draggingSlots.value[0].rowId
+
+  // enforce row constraint
+  if (!allowCrossRowDrop && target.rowId !== originRow) {
     dropTargetSlots.value = []
     return
   }
-  // compute drop target group
-  const startIdx = columns.findIndex(c => c.id === columnId)
-  const length = draggingSlots.value.length
-  if (startIdx + length > columns.length) {
-    dropTargetSlots.value = []
-  } else {
-    dropTargetSlots.value = columns
-      .slice(startIdx, startIdx + length)
-      .map(c => ({ rowId: rowId, columnId: c.id }))
-  }
+
+  // compute new drop slots
+  const startIdx = columns.findIndex(c => c.id === target.columnId)
+  const count    = draggingSlots.value.length
+  dropTargetSlots.value =
+    startIdx + count <= columns.length
+      ? columns.slice(startIdx, startIdx + count)
+          .map(c => ({ rowId: target.rowId, columnId: c.id }))
+      : []
 }
 
-function onDrop(rowId: string, columnId: string) {
-  if (!draggingSlots.value || !dragStart.value) return
-  // block cross-row if disallowed
-  if (!allowCrossRowDrop && rowId !== draggingSlots.value[0].rowId) {
-    alert('Cannot move slot to another row')
-    resetStates()
+function handleDrop(target: Slot) {
+  if (!draggingSlots.value || !dragOrigin.value) return
+
+  // enforce row constraint
+  if (!allowCrossRowDrop && target.rowId !== draggingSlots.value[0].rowId) {
+    alert('Cross-row drop is disabled.')
+    resetState()
     return
   }
+
   const newSlots = dropTargetSlots.value
-  if (!newSlots.length) { resetStates(); return }
-  const fromGroup = findGroupForSlot(dragStart.value)
-  const conflict = newSlots.some(ns =>
-    selectedSlots.value.some(es => es.rowId === ns.rowId && es.columnId === ns.columnId &&
-      !fromGroup.some(fs => fs.rowId === es.rowId && fs.columnId === es.columnId)
+  if (!newSlots.length) { resetState(); return }
+
+  const originalGroup = findGroup(dragOrigin.value)
+  const overlap = newSlots.some(ns =>
+    selectedSlots.value.some(es =>
+      es.rowId === ns.rowId &&
+      es.columnId === ns.columnId &&
+      !originalGroup.some(os => os.rowId === es.rowId && os.columnId === es.columnId)
     )
   )
-  if (conflict) { alert('Cannot move: conflict'); resetStates(); return }
-  if (confirm('Move this slot group?')) {
-    selectedGroups.value = selectedGroups.value.filter(g => g !== fromGroup)
-    selectedGroups.value.push(newSlots)
-    emit('move', { from: fromGroup, to: newSlots })
+
+  if (overlap) {
+    alert('Cannot drop: conflict with existing slots.')
+    resetState()
+    return
   }
-  resetStates()
+
+  if (confirm('Move this slot group?')) {
+    selectedGroups.value = selectedGroups.value.filter(
+      g => g !== originalGroup
+    )
+    selectedGroups.value.push(newSlots)
+    emit('move', { from: originalGroup, to: newSlots })
+  }
+
+  resetState()
 }
 </script>
 
 <template>
   <div class="w-full select-none">
-    <div class="grid" :style="`grid-template-columns: 200px repeat(${columns.length}, 1fr)`">
-      <!-- entêtes -->
+    <div
+      class="grid"
+      :style="`grid-template-columns: 200px repeat(${columns.length}, 1fr)`"
+    >
+      <!-- header row -->
       <div class="border p-2 font-semibold bg-gray-50">Room</div>
-      <div v-for="col in columns" :key="col.id" class="border p-2 text-center font-semibold bg-gray-50">
+      <div
+        v-for="col in columns"
+        :key="col.id"
+        class="border p-2 text-center font-semibold bg-gray-50"
+      >
         {{ col.label }}
       </div>
 
-      <!-- lignes -->
+      <!-- grid rows -->
       <template v-for="row in rows" :key="row.id">
         <div class="border p-2 font-medium bg-white">{{ row.label }}</div>
         <div
           v-for="col in columns"
           :key="`${row.id}-${col.id}`"
-          :data-slot="row.id + '-' + col.id"
+          :data-slot="`${row.id}-${col.id}`"
           class="border p-2 text-center cursor-pointer transition-colors duration-150"
           :class="{
-            'bg-brand/20': isSlotSelected(row.id, col.id),
-            'bg-brand/10': isSlotHovered(row.id, col.id),
-            'bg-gray-200': isDropTarget(row.id, col.id),
-            'border-l-0': isSlotSelected(row.id, col.id) && hasGroupNeighbor({ rowId: row.id, columnId: col.id }, -1),
-            'border-r-0': isSlotSelected(row.id, col.id) && hasGroupNeighbor({ rowId: row.id, columnId: col.id }, 1)
+            'bg-brand/20': isSelected({ rowId: row.id, columnId: col.id }),
+            'bg-brand/10': hoveredSlots.some(s => s.rowId === row.id && s.columnId === col.id),
+            'bg-gray-200': dropTargetSlots.some(s => s.rowId === row.id && s.columnId === col.id),
+            'border-l-0': isSelected({ rowId: row.id, columnId: col.id }) && hasNeighbor({ rowId: row.id, columnId: col.id }, -1),
+            'border-r-0': isSelected({ rowId: row.id, columnId: col.id }) && hasNeighbor({ rowId: row.id, columnId: col.id }, 1)
           }"
-          :draggable="isSlotSelected(row.id, col.id)"
-          @mousedown="onMouseDown(row.id, col.id)"
-          @mouseenter="onMouseEnter(row.id, col.id)"
-          @mouseup="onMouseUp(row.id, col.id)"
-          @dragstart="e => isSlotSelected(row.id, col.id) && onDragStart(e, { rowId: row.id, columnId: col.id })"
-          @dragover="onDragOver"
-          @dragenter="() => onDragEnter(row.id, col.id)"
-          @drop="() => onDrop(row.id, col.id)"
+          :draggable="isSelected({ rowId: row.id, columnId: col.id })"
+          @mousedown="handleMouseDown({ rowId: row.id, columnId: col.id })"
+          @mouseenter="handleMouseEnter({ rowId: row.id, columnId: col.id })"
+          @mouseup="handleMouseUp({ rowId: row.id, columnId: col.id })"
+          @dragstart="e => isSelected({ rowId: row.id, columnId: col.id }) && handleDragStart(e, { rowId: row.id, columnId: col.id })"
+          @dragover="handleDragOver"
+          @dragenter="() => handleDragEnter({ rowId: row.id, columnId: col.id })"
+          @drop="() => handleDrop({ rowId: row.id, columnId: col.id })"
         />
       </template>
     </div>
