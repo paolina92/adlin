@@ -27,9 +27,7 @@ const emit = defineEmits<{
 }>()
 
 // ── State ─────────────────────────────────────────────────────────────────────
-// Maintain groups of slots to preserve semantic grouping
 const selectedGroups = ref<Slot[][]>([...initialGroups])
-// Flattened view for rendering and checks
 const selectedSlots = computed(() => selectedGroups.value.flat())
 
 const selectionStart = ref<Slot | null>(null)
@@ -50,17 +48,22 @@ function getSelectedSlotsGroup(start: Slot, end: Slot): Slot[] {
   const i1 = columns.findIndex(c => c.id === start.columnId)
   const i2 = columns.findIndex(c => c.id === end.columnId)
   const [from, to] = i1 < i2 ? [i1, i2] : [i2, i1]
-  return columns
-    .slice(from, to + 1)
-    .map(c => ({ rowId: start.rowId, columnId: c.id }))
+  return columns.slice(from, to + 1).map(c => ({ rowId: start.rowId, columnId: c.id }))
 }
-// Find the stored group that contains a given slot
 function findGroupForSlot(clicked: Slot): Slot[] {
   return (
     selectedGroups.value.find(g =>
       g.some(s => s.rowId === clicked.rowId && s.columnId === clicked.columnId)
     ) || [clicked]
   )
+}
+// Check if a slot has an adjacent neighbor in its group
+function hasGroupNeighbor(slot: Slot, offset: number): boolean {
+  const idx = columns.findIndex(c => c.id === slot.columnId)
+  const neighborCol = columns[idx + offset]
+  if (!neighborCol) return false
+  const group = findGroupForSlot(slot)
+  return group.some(s => s.rowId === slot.rowId && s.columnId === neighborCol.id)
 }
 function resetDraggingState() {
   draggingSlots.value  = null
@@ -81,28 +84,18 @@ function onMouseEnter(rowId: string, columnId: string) {
 function onMouseUp(rowId: string, columnId: string) {
   if (!selectionStart.value) return
   const clicked: Slot = { rowId, columnId }
-
-  // Determine target slots: drag selection vs click
   let slots: Slot[]
   if (hoveredSlots.value.length > 1) {
     slots = [...hoveredSlots.value]
   } else if (isSlotSelected(rowId, columnId)) {
-    // click on existing: delete whole semantic group
     slots = findGroupForSlot(clicked)
   } else {
-    // click on empty: create single slot group
     slots = [clicked]
   }
-
-  if (!slots.length) {
-    resetDraggingState()
-    return
-  }
-
+  if (!slots.length) { resetDraggingState(); return }
   const allSel = slots.every(s => isSlotSelected(s.rowId, s.columnId))
   if (allSel) {
     if (confirm('Delete this slot group?')) {
-      // remove any stored groups containing these slots
       selectedGroups.value = selectedGroups.value.filter(
         g => !slots.every(s => g.some(gs => gs.rowId === s.rowId && gs.columnId === s.columnId))
       )
@@ -114,19 +107,15 @@ function onMouseUp(rowId: string, columnId: string) {
       emit('create', { slots })
     }
   }
-
   resetDraggingState()
 }
 
 // ── Drag & Drop ───────────────────────────────────────────────────────────────
 async function onDragStart(event: DragEvent, slot: Slot) {
-  // use semantic grouping for drag
   const group = findGroupForSlot(slot)
   draggingSlots.value = [...group]
   dragStart.value     = slot
   await nextTick()
-
-  // build ghost element
   const ghost = document.createElement('div')
   ghost.style.display       = 'flex'
   ghost.style.position      = 'absolute'
@@ -134,11 +123,8 @@ async function onDragStart(event: DragEvent, slot: Slot) {
   ghost.style.left          = '-10000px'
   ghost.style.pointerEvents = 'none'
   ghost.style.gap           = '2px'
-
   draggingSlots.value!.forEach(s => {
-    const el = document.querySelector<HTMLElement>(
-      `[data-slot="${s.rowId}-${s.columnId}"]`
-    )
+    const el = document.querySelector<HTMLElement>(`[data-slot="${s.rowId}-${s.columnId}"]`)
     if (el) {
       const rect = el.getBoundingClientRect()
       const clone = el.cloneNode(true) as HTMLElement
@@ -150,58 +136,30 @@ async function onDragStart(event: DragEvent, slot: Slot) {
       ghost.appendChild(clone)
     }
   })
-
   document.body.appendChild(ghost)
   const r = ghost.getBoundingClientRect()
   event.dataTransfer?.setDragImage(ghost, r.width/2, r.height/2)
   setTimeout(() => document.body.removeChild(ghost), 0)
 }
-function onDragOver(event: DragEvent) {
-  event.preventDefault()
-}
+function onDragOver(event: DragEvent) { event.preventDefault() }
 function onDrop(rowId: string, columnId: string) {
   if (!draggingSlots.value || !dragStart.value) return
-
   if (!allowCrossRowDrop && rowId !== draggingSlots.value[0].rowId) {
-    alert('Cannot move slot to another row')
-    resetDraggingState()
-    return
+    alert('Cannot move slot to another row'); resetDraggingState(); return
   }
-
   const duration     = draggingSlots.value.length
   const startIdxDrop = columns.findIndex(c => c.id === columnId)
   if (startIdxDrop + duration > columns.length) {
-    alert('Not enough space to move the slot')
-    resetDraggingState()
-    return
+    alert('Not enough space to move the slot'); resetDraggingState(); return
   }
-
-  const newSlots = columns
-    .slice(startIdxDrop, startIdxDrop + duration)
-    .map(c => ({ rowId, columnId: c.id }))
-
-  // move semantic group
+  const newSlots = columns.slice(startIdxDrop, startIdxDrop + duration).map(c => ({ rowId, columnId: c.id }))
   const fromGroup = findGroupForSlot(dragStart.value)
-
   const conflict = newSlots.some(ns =>
-    // detect if any new slot overlaps with other groups (excluding the moved one)
-    selectedSlots.value.some(es =>
-      es.rowId === rowId &&
-      es.columnId === ns.columnId &&
-      !fromGroup.some(fs => fs.rowId === es.rowId && fs.columnId === es.columnId)
-    )
+    selectedSlots.value.some(es => es.rowId === rowId && es.columnId === ns.columnId && !fromGroup.some(fs => fs.rowId === es.rowId && fs.columnId === es.columnId))
   )
-  if (conflict) {
-    alert('Cannot move: conflict with existing slot')
-    resetDraggingState()
-    return
-  }
-
+  if (conflict) { alert('Cannot move: conflict'); resetDraggingState(); return }
   if (confirm('Move this slot group?')) {
-    // replace group
-    selectedGroups.value = selectedGroups.value.filter(
-      g => g !== fromGroup
-    )
+    selectedGroups.value = selectedGroups.value.filter(g => g !== fromGroup)
     selectedGroups.value.push(newSlots)
     emit('move', { from: fromGroup, to: newSlots })
   }
@@ -211,17 +169,12 @@ function onDrop(rowId: string, columnId: string) {
 
 <template>
   <div class="w-full select-none">
-    <div
-      class="grid"
-      :style="`grid-template-columns: 200px repeat(${columns.length}, 1fr)`"
-    >
+    <div class="grid" :style="`grid-template-columns: 200px repeat(${columns.length}, 1fr)`">
       <!-- entêtes -->
       <div class="border p-2 font-semibold bg-gray-50">Room</div>
-      <div
-        v-for="col in columns"
-        :key="col.id"
-        class="border p-2 text-center font-semibold bg-gray-50"
-      >{{ col.label }}</div>
+      <div v-for="col in columns" :key="col.id" class="border p-2 text-center font-semibold bg-gray-50">
+        {{ col.label }}
+      </div>
 
       <!-- lignes -->
       <template v-for="row in rows" :key="row.id">
@@ -233,7 +186,9 @@ function onDrop(rowId: string, columnId: string) {
           class="border p-2 text-center cursor-pointer transition-colors duration-150"
           :class="{
             'bg-brand/20': isSlotSelected(row.id, col.id),
-            'bg-brand/10': isSlotHovered(row.id, col.id)
+            'bg-brand/10': isSlotHovered(row.id, col.id),
+            'border-l-0': isSlotSelected(row.id, col.id) && hasGroupNeighbor({ rowId: row.id, columnId: col.id }, -1),
+            'border-r-0': isSlotSelected(row.id, col.id) && hasGroupNeighbor({ rowId: row.id, columnId: col.id }, 1)
           }"
           :draggable="isSlotSelected(row.id, col.id)"
           @mousedown="onMouseDown(row.id, col.id)"
