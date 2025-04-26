@@ -66,13 +66,23 @@ function rangeSlots(start: Slot, end: Slot): Slot[] {
 }
 
 /**
- * Check if a slot has a neighbor in its group by offset (-1 for left, +1 for right)
+ * Check if a slot has a neighbor in its selected group by offset
  */
 function hasNeighbor(slot: Slot, offset: number): boolean {
   const idx = columns.findIndex(c => c.id === slot.columnId)
   const neighbor = columns[idx + offset]
   if (!neighbor) return false
   return findGroup(slot).some(s => s.rowId === slot.rowId && s.columnId === neighbor.id)
+}
+
+/**
+ * Check if a slot has a neighbor in the hovered range by offset
+ */
+function hasHoveredNeighbor(slot: Slot, offset: number): boolean {
+  const idx = columns.findIndex(c => c.id === slot.columnId)
+  const neighbor = columns[idx + offset]
+  if (!neighbor) return false
+  return hoveredSlots.value.some(s => s.rowId === slot.rowId && s.columnId === neighbor.id)
 }
 
 /**
@@ -130,15 +140,13 @@ function handleMouseUp(slot: Slot) {
   resetState()
 }
 
-// === Drag & Drop Handlers ===
-
+// === Drag & Drop Handlers (unchanged) ===
 async function handleDragStart(event: DragEvent, slot: Slot) {
   const group = findGroup(slot)
   draggingSlots.value = [...group]
   dragOrigin.value    = slot
   await nextTick()
 
-  // build drag ghost
   const ghost = document.createElement('div')
   ghost.style.display       = 'flex'
   ghost.style.position      = 'absolute'
@@ -147,11 +155,8 @@ async function handleDragStart(event: DragEvent, slot: Slot) {
   ghost.style.pointerEvents = 'none'
   ghost.style.gap           = '2px'
 
-  // clone each cell
   group.forEach(s => {
-    const cell = document.querySelector<HTMLElement>(
-      `[data-slot="${s.rowId}-${s.columnId}"]`
-    )
+    const cell = document.querySelector<HTMLElement>(`[data-slot="${s.rowId}-${s.columnId}"]`)
     if (cell) {
       const rect = cell.getBoundingClientRect()
       const clone = cell.cloneNode(true) as HTMLElement
@@ -169,84 +174,40 @@ async function handleDragStart(event: DragEvent, slot: Slot) {
   event.dataTransfer?.setDragImage(ghost, rect.width / 2, rect.height / 2)
   setTimeout(() => document.body.removeChild(ghost), 0)
 }
-
-function handleDragOver(event: DragEvent) {
-  event.preventDefault()
-}
-
+function handleDragOver(event: DragEvent) { event.preventDefault() }
 function handleDragEnter(target: Slot) {
   if (!draggingSlots.value) return
   const originRow = draggingSlots.value[0].rowId
-
-  // enforce row constraint
-  if (!allowCrossRowDrop && target.rowId !== originRow) {
-    dropTargetSlots.value = []
-    return
-  }
-
-  // compute new drop slots
+  if (!allowCrossRowDrop && target.rowId !== originRow) { dropTargetSlots.value = []; return }
   const startIdx = columns.findIndex(c => c.id === target.columnId)
   const count    = draggingSlots.value.length
-  dropTargetSlots.value =
-    startIdx + count <= columns.length
-      ? columns.slice(startIdx, startIdx + count)
-          .map(c => ({ rowId: target.rowId, columnId: c.id }))
-      : []
+  dropTargetSlots.value = startIdx + count <= columns.length
+    ? columns.slice(startIdx, startIdx + count).map(c => ({ rowId: target.rowId, columnId: c.id }))
+    : []
 }
-
 function handleDrop(target: Slot) {
   if (!draggingSlots.value || !dragOrigin.value) return
-
-  // enforce row constraint
-  if (!allowCrossRowDrop && target.rowId !== draggingSlots.value[0].rowId) {
-    alert('Cross-row drop is disabled.')
-    resetState()
-    return
-  }
-
+  if (!allowCrossRowDrop && target.rowId !== draggingSlots.value[0].rowId) { alert('Cross-row drop is disabled.'); resetState(); return }
   const newSlots = dropTargetSlots.value
   if (!newSlots.length) { resetState(); return }
-
   const originalGroup = findGroup(dragOrigin.value)
-  const overlap = newSlots.some(ns =>
-    selectedSlots.value.some(es =>
-      es.rowId === ns.rowId &&
-      es.columnId === ns.columnId &&
-      !originalGroup.some(os => os.rowId === es.rowId && os.columnId === es.columnId)
-    )
-  )
-
-  if (overlap) {
-    alert('Cannot drop: conflict with existing slots.')
-    resetState()
-    return
-  }
-
+  const overlap = newSlots.some(ns => selectedSlots.value.some(es => es.rowId === ns.rowId && es.columnId === ns.columnId && !originalGroup.some(os => os.rowId === es.rowId && os.columnId === es.columnId)))
+  if (overlap) { alert('Cannot drop: conflict with existing slots.'); resetState(); return }
   if (confirm('Move this slot group?')) {
-    selectedGroups.value = selectedGroups.value.filter(
-      g => g !== originalGroup
-    )
+    selectedGroups.value = selectedGroups.value.filter(g => g !== originalGroup)
     selectedGroups.value.push(newSlots)
     emit('move', { from: originalGroup, to: newSlots })
   }
-
   resetState()
 }
 </script>
 
 <template>
   <div class="w-full select-none">
-    <div
-      class="grid"
-      :style="`grid-template-columns: 200px repeat(${columns.length}, 1fr)`"
-    >
+    <div class="grid" :style="`grid-template-columns: 200px repeat(${columns.length}, 1fr)`">
       <!-- header row -->
       <div class="border p-2 font-semibold bg-gray-50">Room</div>
-      <div
-        v-for="col in columns"
-        :key="col.id"
-        class="border p-2 text-center font-semibold bg-gray-50"
-      >
+      <div v-for="col in columns" :key="col.id" class="border p-2 text-center font-semibold bg-gray-50">
         {{ col.label }}
       </div>
 
@@ -262,8 +223,10 @@ function handleDrop(target: Slot) {
             'bg-brand/20': isSelected({ rowId: row.id, columnId: col.id }),
             'bg-brand/10': hoveredSlots.some(s => s.rowId === row.id && s.columnId === col.id),
             'bg-gray-200': dropTargetSlots.some(s => s.rowId === row.id && s.columnId === col.id),
-            'border-l-0': isSelected({ rowId: row.id, columnId: col.id }) && hasNeighbor({ rowId: row.id, columnId: col.id }, -1),
-            'border-r-0': isSelected({ rowId: row.id, columnId: col.id }) && hasNeighbor({ rowId: row.id, columnId: col.id }, 1)
+            'border-l-0': (isSelected({ rowId: row.id, columnId: col.id }) && hasNeighbor({ rowId: row.id, columnId: col.id }, -1)) ||
+                          (hoveredSlots.some(s => s.rowId === row.id && s.columnId === col.id) && hasHoveredNeighbor({ rowId: row.id, columnId: col.id }, -1)),
+            'border-r-0': (isSelected({ rowId: row.id, columnId: col.id }) && hasNeighbor({ rowId: row.id, columnId: col.id }, 1)) ||
+                          (hoveredSlots.some(s => s.rowId === row.id && s.columnId === col.id) && hasHoveredNeighbor({ rowId: row.id, columnId: col.id }, 1))
           }"
           :draggable="isSelected({ rowId: row.id, columnId: col.id })"
           @mousedown="handleMouseDown({ rowId: row.id, columnId: col.id })"
