@@ -66,6 +66,7 @@ const currentSelections = ref(selectedSlots)
       :rows="rows"
       :columns="columns"
       :initial-selections="currentSelections"
+      :allow-cross-row-drop="false"
     />
   </div>
 </template>

@@ -16,77 +16,70 @@ interface Slot {
   columnId: string
 }
 
-// Props
+// ── Props ─────────────────────────────────────────────────────────────────────
 const props = defineProps<{
   rows: Row[]
   columns: TimeColumn[]
   initialSelections?: Slot[]
+  allowCrossRowDrop?: boolean
 }>()
 
-// Emits
+// Par défaut, on autorise le cross-row drop
+const allowCrossRowDrop = props.allowCrossRowDrop ?? true
+
+// ── Emits ─────────────────────────────────────────────────────────────────────
 const emit = defineEmits<{
   (e: 'create', payload: { slots: Slot[] }): void
   (e: 'move', payload: { from: Slot[]; to: Slot[] }): void
   (e: 'delete', payload: { slots: Slot[] }): void
 }>()
 
-// State
+// ── State ─────────────────────────────────────────────────────────────────────
 const selectedSlots = ref<Slot[]>(props.initialSelections || [])
 const selectionStart = ref<Slot | null>(null)
 const hoveredSlots = ref<Slot[]>([])
 const draggingSlots = ref<Slot[] | null>(null)
 const dragStart = ref<Slot | null>(null)
 
-// Utils
+// ── Utils ─────────────────────────────────────────────────────────────────────
 function isSlotSelected(rowId: string, columnId: string) {
   return selectedSlots.value.some(s => s.rowId === rowId && s.columnId === columnId)
 }
 
 function isSlotHovered(rowId: string, columnId: string) {
-  return selectionStart.value !== null && hoveredSlots.value.some(
-    s => s.rowId === rowId && s.columnId === columnId
+  return (
+    selectionStart.value !== null &&
+    hoveredSlots.value.some(s => s.rowId === rowId && s.columnId === columnId)
   )
 }
 
 function getSelectedSlotsGroup(start: Slot, end: Slot): Slot[] {
   if (start.rowId !== end.rowId) return []
-
-  const startIndex = props.columns.findIndex(c => c.id === start.columnId)
-  const endIndex = props.columns.findIndex(c => c.id === end.columnId)
-  const [from, to] = startIndex < endIndex ? [startIndex, endIndex] : [endIndex, startIndex]
-
+  const idx1 = props.columns.findIndex(c => c.id === start.columnId)
+  const idx2 = props.columns.findIndex(c => c.id === end.columnId)
+  const [from, to] = idx1 < idx2 ? [idx1, idx2] : [idx2, idx1]
   return props.columns.slice(from, to + 1).map(c => ({
     rowId: start.rowId,
     columnId: c.id,
   }))
 }
 
-function getGroupedSlots(slot: Slot) {
+function getGroupedSlots(slot: Slot): Slot[] {
+  // récupère tout le groupe contigu de slots déjà sélectionnés autour de `slot`
   const group: Slot[] = []
   const startIdx = props.columns.findIndex(c => c.id === slot.columnId)
 
-  // Regarde vers la gauche
-  let leftIdx = startIdx
-  while (leftIdx >= 0) {
-    const col = props.columns[leftIdx]
-    if (isSlotSelected(slot.rowId, col.id)) {
-      group.unshift({ rowId: slot.rowId, columnId: col.id }) // ajoute au début
-      leftIdx--
-    } else {
-      break
-    }
+  // vers la gauche
+  for (let i = startIdx; i >= 0; i--) {
+    const c = props.columns[i]
+    if (isSlotSelected(slot.rowId, c.id)) group.unshift({ rowId: slot.rowId, columnId: c.id })
+    else break
   }
-
-  // Regarde vers la droite
-  let rightIdx = startIdx + 1
-  while (rightIdx < props.columns.length) {
-    const col = props.columns[rightIdx]
-    if (isSlotSelected(slot.rowId, col.id)) {
-      group.push({ rowId: slot.rowId, columnId: col.id })
-      rightIdx++
-    } else {
-      break
-    }
+  // vers la droite
+  for (let i = startIdx + 1; i < props.columns.length; i++) {
+    const c = props.columns[i]
+    if (isSlotSelected(slot.rowId, c.id)) group.push({ rowId: slot.rowId, columnId: c.id })
+    else break
   }
 
   return group
@@ -99,7 +92,7 @@ function resetDraggingState() {
   hoveredSlots.value = []
 }
 
-// Selection events
+// ── Sélection (click / drag) ─────────────────────────────────────────────────
 function onMouseDown(rowId: string, columnId: string) {
   selectionStart.value = { rowId, columnId }
   hoveredSlots.value = [{ rowId, columnId }]
@@ -113,23 +106,20 @@ function onMouseEnter(rowId: string, columnId: string) {
 function onMouseUp(rowId: string, columnId: string) {
   if (!selectionStart.value) return
 
-  const clickedSlot = { rowId, columnId }
-  let slots: Slot[] = []
+  const clicked = { rowId, columnId }
+  let slots: Slot[]
 
-  if (hoveredSlots.value.length > 1) {
-    slots = [...hoveredSlots.value]
-  } else if (isSlotSelected(rowId, columnId)) {
-    slots = getGroupedSlots(clickedSlot)
-  } else {
-    slots = [clickedSlot]
-  }
+  if (hoveredSlots.value.length > 1) slots = [...hoveredSlots.value]
+  else if (isSlotSelected(rowId, columnId)) slots = getGroupedSlots(clicked)
+  else slots = [clicked]
 
   if (slots.length) {
-    if (slots.every(s => isSlotSelected(s.rowId, s.columnId))) {
+    const allSelected = slots.every(s => isSlotSelected(s.rowId, s.columnId))
+    if (allSelected) {
       if (confirm('Delete this slot group?')) {
-        selectedSlots.value = selectedSlots.value.filter(sel => {
-          return !slots.some(slot => sel.rowId === slot.rowId && sel.columnId === slot.columnId)
-        })
+        selectedSlots.value = selectedSlots.value.filter(
+          sel => !slots.some(s => sel.rowId === s.rowId && sel.columnId === s.columnId)
+        )
         emit('delete', { slots })
       }
     } else {
@@ -143,10 +133,13 @@ function onMouseUp(rowId: string, columnId: string) {
   resetDraggingState()
 }
 
-// Drag and drop events
-function onDragStart(slot: Slot) {
+// ── Drag & Drop ───────────────────────────────────────────────────────────────
+function onDragStart(event: DragEvent, slot: Slot) {
   draggingSlots.value = getGroupedSlots(slot)
   dragStart.value = slot
+
+  // Optionnel : ghost visuel si besoin…
+  event.dataTransfer?.setDragImage(new Image(), 0, 0)
 }
 
 function onDragOver(event: DragEvent) {
@@ -156,36 +149,42 @@ function onDragOver(event: DragEvent) {
 function onDrop(rowId: string, columnId: string) {
   if (!draggingSlots.value || !dragStart.value) return
 
-  const dragDuration = draggingSlots.value.length
-  const dropStartIndex = props.columns.findIndex(c => c.id === columnId)
+  // ❌ si cross-row non autorisé et qu'on lâche sur une autre ligne
+  if (!allowCrossRowDrop && rowId !== draggingSlots.value[0].rowId) {
+    alert('Cannot move slot to another row')
+    resetDraggingState()
+    return
+  }
 
-  if (dropStartIndex + dragDuration > props.columns.length) {
+  const duration = draggingSlots.value.length
+  const startIdxDrop = props.columns.findIndex(c => c.id === columnId)
+
+  // hors timeline
+  if (startIdxDrop + duration > props.columns.length) {
     alert('Not enough space to move the slot')
     resetDraggingState()
     return
   }
 
-  const newSlots = props.columns.slice(dropStartIndex, dropStartIndex + dragDuration).map(c => ({
-    rowId,
-    columnId: c.id,
-  }))
+  const newSlots = props.columns
+    .slice(startIdxDrop, startIdxDrop + duration)
+    .map(c => ({ rowId, columnId: c.id }))
 
-  const conflict = newSlots.some(newSlot =>
-    selectedSlots.value.some(
-      existing => existing.rowId === rowId && existing.columnId === newSlot.columnId
-    )
+  // conflit avec existants
+  const conflict = newSlots.some(ns =>
+    selectedSlots.value.some(es => es.rowId === rowId && es.columnId === ns.columnId)
   )
-
   if (conflict) {
     alert('Cannot move: conflict with existing slot')
     resetDraggingState()
     return
   }
 
-  if (confirm('Move this slot?')) {
-    selectedSlots.value = selectedSlots.value.filter(sel => {
-      return !draggingSlots.value!.some(s => sel.rowId === s.rowId && sel.columnId === s.columnId)
-    })
+  if (confirm('Move this slot group?')) {
+    selectedSlots.value = selectedSlots.value.filter(
+      sel =>
+        !draggingSlots.value!.some(ds => ds.rowId === sel.rowId && ds.columnId === sel.columnId)
+    )
     selectedSlots.value.push(...newSlots)
     emit('move', { from: draggingSlots.value, to: newSlots })
   }
@@ -197,37 +196,37 @@ function onDrop(rowId: string, columnId: string) {
 <template>
   <div class="w-full select-none">
     <div class="grid" :style="`grid-template-columns: 200px repeat(${columns.length}, 1fr)`">
-      <!-- Header -->
+      <!-- entêtes -->
       <div class="border p-2 font-semibold bg-gray-50">Room</div>
       <div
-        v-for="(column, i) in columns"
-        :key="`header-${i}`"
+        v-for="col in columns"
+        :key="col.id"
         class="border p-2 text-center font-semibold bg-gray-50"
       >
-        {{ column.label }}
+        {{ col.label }}
       </div>
 
-      <!-- Rows -->
+      <!-- lignes -->
       <template v-for="row in rows" :key="row.id">
         <div class="border p-2 font-medium bg-white">{{ row.label }}</div>
-
         <div
-          v-for="column in columns"
-          :key="`${row.id}-${column.id}`"
-          :class="[
-            'border p-2 text-center cursor-pointer transition-colors duration-200',
-            {
-              'bg-brand/20': isSlotSelected(row.id, column.id),
-              'bg-brand/10': isSlotHovered(row.id, column.id),
-            },
-          ]"
-          :draggable="isSlotSelected(row.id, column.id)"
-          @mousedown="onMouseDown(row.id, column.id)"
-          @mouseenter="onMouseEnter(row.id, column.id)"
-          @mouseup="onMouseUp(row.id, column.id)"
-          @dragstart="isSlotSelected(row.id, column.id) ? onDragStart({ rowId: row.id, columnId: column.id }) : undefined"
+          v-for="col in columns"
+          :key="`${row.id}-${col.id}`"
+          class="border p-2 text-center cursor-pointer transition-colors duration-150"
+          :class="{
+            'bg-brand/20': isSlotSelected(row.id, col.id),
+            'bg-brand/10': isSlotHovered(row.id, col.id),
+          }"
+          :draggable="isSlotSelected(row.id, col.id)"
+          @mousedown="onMouseDown(row.id, col.id)"
+          @mouseenter="onMouseEnter(row.id, col.id)"
+          @mouseup="onMouseUp(row.id, col.id)"
+          @dragstart="
+            e =>
+              isSlotSelected(row.id, col.id) && onDragStart(e, { rowId: row.id, columnId: col.id })
+          "
           @dragover="onDragOver"
-          @drop="onDrop(row.id, column.id)"
+          @drop="() => onDrop(row.id, col.id)"
         />
       </template>
     </div>
