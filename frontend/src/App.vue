@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import BookingTimeline from '@/containers/BookingTimeline'
+import BookingRoom from '@/containers/BookingRoom'
 import BookingFilters from '@/containers/BookingFilters'
 </script>
 
@@ -8,7 +8,7 @@ import BookingFilters from '@/containers/BookingFilters'
     <div class="text-4xl font-bold">🗓️ Meeting room reservation</div>
     <div class="flex gap-4">
       <BookingFilters />
-      <BookingTimeline />
+      <BookingRoom />
     </div>
   </div>
 </template>
