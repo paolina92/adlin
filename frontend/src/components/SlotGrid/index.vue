@@ -71,10 +71,10 @@ function hasGroupNeighbor(slot: Slot, offset: number): boolean {
   return group.some(s => s.rowId === slot.rowId && s.columnId === neighborCol.id)
 }
 function resetStates() {
-  draggingSlots.value  = null
-  dragStart.value      = null
-  selectionStart.value = null
-  hoveredSlots.value   = []
+  draggingSlots.value   = null
+  dragStart.value       = null
+  selectionStart.value  = null
+  hoveredSlots.value    = []
   dropTargetSlots.value = []
 }
 
@@ -148,11 +148,18 @@ async function onDragStart(event: DragEvent, slot: Slot) {
   event.dataTransfer?.setDragImage(ghost, r.width/2, r.height/2)
   setTimeout(() => document.body.removeChild(ghost), 0)
 }
+
 function onDragOver(event: DragEvent) {
   event.preventDefault()
 }
+
 function onDragEnter(rowId: string, columnId: string) {
   if (!draggingSlots.value) return
+  // block cross-row if disallowed
+  if (!allowCrossRowDrop && rowId !== draggingSlots.value[0].rowId) {
+    dropTargetSlots.value = []
+    return
+  }
   // compute drop target group
   const startIdx = columns.findIndex(c => c.id === columnId)
   const length = draggingSlots.value.length
@@ -164,9 +171,15 @@ function onDragEnter(rowId: string, columnId: string) {
       .map(c => ({ rowId: rowId, columnId: c.id }))
   }
 }
+
 function onDrop(rowId: string, columnId: string) {
   if (!draggingSlots.value || !dragStart.value) return
-  // finalize move
+  // block cross-row if disallowed
+  if (!allowCrossRowDrop && rowId !== draggingSlots.value[0].rowId) {
+    alert('Cannot move slot to another row')
+    resetStates()
+    return
+  }
   const newSlots = dropTargetSlots.value
   if (!newSlots.length) { resetStates(); return }
   const fromGroup = findGroupForSlot(dragStart.value)
