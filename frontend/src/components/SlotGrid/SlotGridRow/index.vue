@@ -22,16 +22,16 @@ const { row, columns } = props
 </script>
 
 <template>
-  <div class="border p-2 font-medium bg-white">{{ row.label }}</div>
+  <div class="border border-gray p-2 font-medium bg-white">{{ row.label }}</div>
   <div
     v-for="col in columns"
     :key="`${row.id}-${col.id}`"
     :data-slot="`${row.id}-${col.id}`"
-    class="border p-2 text-center cursor-pointer transition-colors duration-150"
+    class="border border-gray p-2 text-center cursor-pointer transition-colors duration-150"
     :class="{
-      'bg-brand/20': isSelected({ rowId: row.id, columnId: col.id }),
-      'bg-brand/10': hoveredSlots.some(s => s.rowId === row.id && s.columnId === col.id),
-      'bg-gray-200': dropTargetSlots.some(s => s.rowId === row.id && s.columnId === col.id),
+      'bg-brand/80': isSelected({ rowId: row.id, columnId: col.id }),
+      'bg-brand/70': hoveredSlots.some(s => s.rowId === row.id && s.columnId === col.id),
+      'bg-gray': dropTargetSlots.some(s => s.rowId === row.id && s.columnId === col.id),
       'border-l-0':
         (isSelected({ rowId: row.id, columnId: col.id }) &&
           hasNeighbor({ rowId: row.id, columnId: col.id }, -1)) ||
