@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useSlotSelection } from '@/composables/useSlotSelection'
 import type { Row, TimeColumn, Slot } from '@/composables/useSlotSelection'
+import SlotGridHeader from '@/components/SlotGrid/SlotGridHeader'
 
 const props = defineProps<{
   rows: Row[]
@@ -35,17 +36,8 @@ const {
 <template>
   <div class="w-full select-none">
     <div class="grid" :style="`grid-template-columns: 200px repeat(${columns.length}, 1fr)`">
-      <!-- header row -->
-      <div class="border p-2 font-semibold bg-gray-50">Room</div>
-      <div
-        v-for="col in columns"
-        :key="col.id"
-        class="border p-2 text-center font-semibold bg-gray-50"
-      >
-        {{ col.label }}
-      </div>
+      <SlotGridHeader :columns="columns" />
 
-      <!-- grid rows -->
       <template v-for="row in rows" :key="row.id">
         <div class="border p-2 font-medium bg-white">{{ row.label }}</div>
         <div
