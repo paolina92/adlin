@@ -1,20 +1,17 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import type { Slot } from '@/types/interfaces'
 import { columns } from '@/constants/reservation'
 import SlotGrid from '@/components/reservation/SlotGrid'
 import { useRooms } from '@/composables/useRooms'
+import { useReservations } from '@/composables/useReservations'
+import type { Reservation } from '@/types/interfaces'
 
-const { formattedRooms: rows, isLoading, error } = useRooms()
-
-// 🧩 MOCK : Les réservations existantes
-const reservations = [
-  { id: 1, roomId: 1, start: 8, end: 10 },
-  { id: 2, roomId: 2, start: 11, end: 12 },
-]
+const { formattedRooms: rows, isLoading: isLoadingRooms, error: roomsError } = useRooms()
+const { reservations, isLoading: isLoadingReservations, error: reservationsError } = useReservations()
 
 // 🎯 Mapping : Reservation → Slot[]
-function slotsFor(res: (typeof reservations)[0]): Slot[] {
+function slotsFor(res: Reservation): Slot[] {
   const arr: Slot[] = []
   for (let h = res.start; h < res.end; h++) {
     arr.push({ rowId: res.roomId.toString(), columnId: `${h}:00` })
@@ -23,7 +20,9 @@ function slotsFor(res: (typeof reservations)[0]): Slot[] {
 }
 
 // **→** on crée un tableau de groupes de slots
-const initialGroups = ref<Slot[][]>(reservations.map(slotsFor))
+const initialGroups = computed(() => 
+  reservations.value ? reservations.value.map(slotsFor) : []
+)
 
 // plus tard, si tu veux garder la main sur les groupes créés/supprimés :
 const currentGroups = ref<Slot[][]>(initialGroups.value)
@@ -31,8 +30,8 @@ const currentGroups = ref<Slot[][]>(initialGroups.value)
 
 <template>
   <div class="p-8">
-    <div v-if="isLoading" class="text-center">Loading</div>
-    <div v-else-if="error" class="text-center text-black">Error while loading rooms</div>
+    <div v-if="isLoadingRooms || isLoadingReservations" class="text-center">Loading</div>
+    <div v-else-if="roomsError || reservationsError" class="text-center text-black">Error while loading data</div>
     <SlotGrid
       v-else
       :rows="rows"

@@ -11,8 +11,14 @@ import BaseSelect from '@/components/shared/BaseSelect'
 const store = useReservationStore()
 const { selectedDate, quantity, selectedEquipment } = storeToRefs(store)
 
+const today = new CalendarDate(
+  new Date().getFullYear(),
+  new Date().getMonth() + 1,
+  new Date().getDate()
+)
+
 const isDateUnavailable = (date: CalendarDate) => {
-  return date.compare(selectedDate.value) < 0
+  return date.compare(today) < 0
 }
 
 watch(selectedDate, newVal => {
