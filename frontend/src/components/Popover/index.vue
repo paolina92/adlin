@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { defineProps, defineEmits } from 'vue'
-import { Icon } from '@iconify/vue'
 import {
   PopoverRoot,
   PopoverTrigger,
   PopoverPortal,
   PopoverContent,
-  PopoverClose,
   PopoverArrow,
 } from 'reka-ui'
 

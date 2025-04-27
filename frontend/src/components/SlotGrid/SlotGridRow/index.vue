@@ -1,12 +1,6 @@
 <script setup lang="ts">
 import type { Row, TimeColumn, Slot } from '@/types/interfaces'
-import {
-  PopoverRoot,
-  PopoverTrigger,
-  PopoverPortal,
-  PopoverContent,
-  PopoverArrow,
-} from 'reka-ui'
+import { PopoverRoot, PopoverTrigger, PopoverPortal, PopoverContent, PopoverArrow } from 'reka-ui'
 import BaseButton from '@/components/BaseButton'
 
 const props = defineProps<{
@@ -56,26 +50,30 @@ const isFirstOfDeleteGroup = (colId: string) =>
             // réservation existante
             'bg-brand/80': isSelected({ rowId: row.id, columnId: col.id }),
             // en train de créer (hover)
-            'bg-brand/70': hoveredSlots.some(s => s.rowId===row.id && s.columnId===col.id),
+            'bg-brand/70': hoveredSlots.some(s => s.rowId === row.id && s.columnId === col.id),
             // drop target
-            'bg-gray': dropTargetSlots.some(s => s.rowId===row.id && s.columnId===col.id),
+            'bg-gray': dropTargetSlots.some(s => s.rowId === row.id && s.columnId === col.id),
             // fusions de bordures gauche/droite
             'border-l-0':
               (isSelected({ rowId: row.id, columnId: col.id }) &&
                 hasNeighbor({ rowId: row.id, columnId: col.id }, -1)) ||
-              (hoveredSlots.some(s => s.rowId===row.id && s.columnId===col.id) &&
+              (hoveredSlots.some(s => s.rowId === row.id && s.columnId === col.id) &&
                 hasHoveredNeighbor({ rowId: row.id, columnId: col.id }, -1)),
             'border-r-0':
               (isSelected({ rowId: row.id, columnId: col.id }) &&
                 hasNeighbor({ rowId: row.id, columnId: col.id }, 1)) ||
-              (hoveredSlots.some(s => s.rowId===row.id && s.columnId===col.id) &&
+              (hoveredSlots.some(s => s.rowId === row.id && s.columnId === col.id) &&
                 hasHoveredNeighbor({ rowId: row.id, columnId: col.id }, 1)),
           }"
           :draggable="isSelected({ rowId: row.id, columnId: col.id })"
           @mousedown="handleMouseDown({ rowId: row.id, columnId: col.id })"
           @mouseenter="handleMouseEnter({ rowId: row.id, columnId: col.id })"
           @mouseup="handleMouseUp({ rowId: row.id, columnId: col.id })"
-          @dragstart="e => isSelected({ rowId: row.id, columnId: col.id }) && handleDragStart(e, { rowId: row.id, columnId: col.id })"
+          @dragstart="
+            e =>
+              isSelected({ rowId: row.id, columnId: col.id }) &&
+              handleDragStart(e, { rowId: row.id, columnId: col.id })
+          "
           @dragover="handleDragOver"
           @dragenter="() => handleDragEnter({ rowId: row.id, columnId: col.id })"
           @drop="() => handleDrop({ rowId: row.id, columnId: col.id })"
@@ -101,24 +99,28 @@ const isFirstOfDeleteGroup = (colId: string) =>
       class="border border-gray p-2 text-center cursor-pointer transition-colors duration-150"
       :class="{
         'bg-brand/80': isSelected({ rowId: row.id, columnId: col.id }),
-        'bg-brand/70': hoveredSlots.some(s => s.rowId===row.id && s.columnId===col.id),
-        'bg-gray': dropTargetSlots.some(s => s.rowId===row.id && s.columnId===col.id),
+        'bg-brand/70': hoveredSlots.some(s => s.rowId === row.id && s.columnId === col.id),
+        'bg-gray': dropTargetSlots.some(s => s.rowId === row.id && s.columnId === col.id),
         'border-l-0':
           (isSelected({ rowId: row.id, columnId: col.id }) &&
             hasNeighbor({ rowId: row.id, columnId: col.id }, -1)) ||
-          (hoveredSlots.some(s => s.rowId===row.id && s.columnId===col.id) &&
+          (hoveredSlots.some(s => s.rowId === row.id && s.columnId === col.id) &&
             hasHoveredNeighbor({ rowId: row.id, columnId: col.id }, -1)),
         'border-r-0':
           (isSelected({ rowId: row.id, columnId: col.id }) &&
             hasNeighbor({ rowId: row.id, columnId: col.id }, 1)) ||
-          (hoveredSlots.some(s => s.rowId===row.id && s.columnId===col.id) &&
+          (hoveredSlots.some(s => s.rowId === row.id && s.columnId === col.id) &&
             hasHoveredNeighbor({ rowId: row.id, columnId: col.id }, 1)),
       }"
       :draggable="isSelected({ rowId: row.id, columnId: col.id })"
       @mousedown="handleMouseDown({ rowId: row.id, columnId: col.id })"
       @mouseenter="handleMouseEnter({ rowId: row.id, columnId: col.id })"
       @mouseup="handleMouseUp({ rowId: row.id, columnId: col.id })"
-      @dragstart="e => isSelected({ rowId: row.id, columnId: col.id }) && handleDragStart(e, { rowId: row.id, columnId: col.id })"
+      @dragstart="
+        e =>
+          isSelected({ rowId: row.id, columnId: col.id }) &&
+          handleDragStart(e, { rowId: row.id, columnId: col.id })
+      "
       @dragover="handleDragOver"
       @dragenter="() => handleDragEnter({ rowId: row.id, columnId: col.id })"
       @drop="() => handleDrop({ rowId: row.id, columnId: col.id })"
