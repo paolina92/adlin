@@ -171,7 +171,6 @@ export const useSlotGrid = ({
   const handleDrop = (target: Slot) => {
     if (!draggingSlots.value || !dragOrigin.value) return
     if (!allowCrossRowDrop && target.rowId !== draggingSlots.value[0].rowId) {
-      alert('Cross-row drop is disabled.')
       resetState()
       return
     }
