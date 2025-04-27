@@ -1,33 +1,11 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import type { Slot } from '@/types/interfaces'
 import { columns } from '@/constants/reservation'
 import SlotGrid from '@/components/reservation/SlotGrid'
 import { useRooms } from '@/composables/useRooms'
 import { useReservations } from '@/composables/useReservations'
-import type { ApiReservation } from '@/types/interfaces'
 
 const { formattedRooms: rows, isLoading: isLoadingRooms, error: roomsError } = useRooms()
-const { reservations, isLoading: isLoadingReservations, error: reservationsError } = useReservations()
-
-const slotsFor = (res: ApiReservation): Slot[] => {
-  const arr: Slot[] = []
-  const start = new Date(res.startDate).getHours()
-  const end = new Date(res.endDate).getHours()
-  for (let h = start; h < end; h++) {
-    arr.push({ rowId: res.roomId.toString(), columnId: `${h}:00` })
-  }
-  return arr
-}
-
-const initialGroups = computed(() => {
-  return reservations.value.map(slotsFor)
-})
-const currentGroups = ref<Slot[][]>(initialGroups.value)
-
-watch(initialGroups, (newGroups) => {
-  currentGroups.value = newGroups
-}, { immediate: true })
+const { isLoading: isLoadingReservations, error: reservationsError, currentGroups } = useReservations()
 </script>
 
 <template>

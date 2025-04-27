@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/vue-query'
 import { getReservations } from '@/api/reservation'
 import { useReservationStore } from '@/stores/reservation'
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
+import type { Slot, ApiReservation } from '@/types/interfaces'
 
 export const useReservations = () => {
   const store = useReservationStore()
@@ -34,9 +35,35 @@ export const useReservations = () => {
     return data.value || []
   })
 
+  const slotsFor = (res: ApiReservation): Slot[] => {
+    const arr: Slot[] = []
+    const start = new Date(res.startDate).getHours()
+    const end = new Date(res.endDate).getHours()
+    for (let h = start; h < end; h++) {
+      arr.push({ rowId: res.roomId.toString(), columnId: `${h}:00` })
+    }
+    return arr
+  }
+
+  const initialGroups = computed(() => {
+    return reservations.value.map(slotsFor)
+  })
+
+  const currentGroups = ref<Slot[][]>(initialGroups.value)
+
+  watch(
+    initialGroups,
+    newGroups => {
+      currentGroups.value = newGroups
+    },
+    { immediate: true }
+  )
+
   return {
     reservations,
     isLoading,
     error,
+    slotsFor,
+    currentGroups,
   }
 }
