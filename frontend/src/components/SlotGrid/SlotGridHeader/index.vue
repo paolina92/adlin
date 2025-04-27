@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { TimeColumn } from '@/types/interfaces'
+
 const props = defineProps<{ columns: TimeColumn[] }>()
 </script>
 
