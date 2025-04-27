@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import type { Slot } from '@/types/slotGrid'
+import { toISODate } from '@/utils/date'
 import { columns } from '@/constants/reservation'
-import SlotGrid from '@/components/reservation/SlotGrid'
+import { useReservationStore } from '@/stores/reservation'
 import { useRooms } from '@/composables/useRooms'
 import { useReservations } from '@/composables/useReservations'
-import { useReservationStore } from '@/stores/reservation'
-import { toISODate } from '@/utils/date'
-import type { Slot } from '@/types/slotGrid'
+import SlotGrid from '@/components/reservation/SlotGrid'
 
 const { formattedRooms: rows, isLoading: isLoadingRooms, error: roomsError } = useRooms()
 const {
