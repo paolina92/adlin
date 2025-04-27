@@ -1,3 +1,5 @@
+import type { Ref } from 'vue'
+
 declare module '@/types/interfaces' {
   export interface Slot {
     rowId: string
@@ -25,5 +27,20 @@ declare module '@/types/interfaces' {
     roomId: number
     start: number
     end: number
+  }
+
+  export interface UseSlotGridReturn {
+    isSelected: (slot: Slot) => boolean
+    hoveredSlots: Ref<Slot[]>
+    dropTargetSlots: Ref<Slot[]>
+    handleMouseDown(slot: Slot): void
+    handleMouseEnter(slot: Slot): void
+    handleMouseUp(slot: Slot): void
+    handleDragStart(event: DragEvent, slot: Slot): Promise<void>
+    handleDragOver(event: DragEvent): void
+    handleDragEnter(slot: Slot): void
+    handleDrop(slot: Slot): void
+    hasNeighbor(slot: Slot, offset: number): boolean
+    hasHoveredNeighbor(slot: Slot, offset: number): boolean
   }
 }

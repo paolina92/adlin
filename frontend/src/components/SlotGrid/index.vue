@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useSlotSelection } from '@/composables/useSlotSelection'
+import { useSlotGrid } from '@/composables/useSlotGrid'
 import type { Row, TimeColumn, Slot } from '@/types/interfaces'
 import SlotGridHeader from '@/components/SlotGrid/SlotGridHeader'
 import SlotGridRow from '@/components/SlotGrid/SlotGridRow'
@@ -31,7 +31,7 @@ const {
   handleDrop,
   hasNeighbor,
   hasHoveredNeighbor,
-} = useSlotSelection(columns, initialGroups, allowCrossRowDrop, emit)
+} = useSlotGrid({ columns, initialGroups, allowCrossRowDrop, emit })
 </script>
 
 <template>

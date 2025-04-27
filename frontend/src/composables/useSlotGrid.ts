@@ -1,35 +1,24 @@
 import { ref, computed, nextTick } from 'vue'
-import type { Ref } from 'vue'
-import type { Slot, TimeColumn } from '@/types/interfaces'
-
-export interface UseSlotSelectionReturn {
-  isSelected: (slot: Slot) => boolean
-  hoveredSlots: Ref<Slot[]>
-  dropTargetSlots: Ref<Slot[]>
-  handleMouseDown(slot: Slot): void
-  handleMouseEnter(slot: Slot): void
-  handleMouseUp(slot: Slot): void
-  handleDragStart(event: DragEvent, slot: Slot): Promise<void>
-  handleDragOver(event: DragEvent): void
-  handleDragEnter(slot: Slot): void
-  handleDrop(slot: Slot): void
-  hasNeighbor(slot: Slot, offset: number): boolean
-  hasHoveredNeighbor(slot: Slot, offset: number): boolean
-}
+import type { Slot, TimeColumn, UseSlotGridReturn } from '@/types/interfaces'
 
 /**
  * Composable extracting selection, hover and drag-and-drop logic for SlotGrid.
  */
-export function useSlotSelection(
-  columns: TimeColumn[],
-  initialGroups: Slot[][] = [],
-  allowCrossRowDrop: boolean = true,
+export const useSlotGrid = ({
+  columns,
+  initialGroups,
+  allowCrossRowDrop,
+  emit,
+}: {
+  columns: TimeColumn[]
+  initialGroups: Slot[][]
+  allowCrossRowDrop: boolean
   emit: {
     (e: 'create', payload: { slots: Slot[] }): void
     (e: 'move', payload: { from: Slot[]; to: Slot[] }): void
     (e: 'delete', payload: { slots: Slot[] }): void
   }
-): UseSlotSelectionReturn {
+}): UseSlotGridReturn => {
   const selectedGroups = ref<Slot[][]>([...initialGroups])
   const selectedSlots = computed(() => selectedGroups.value.flat())
   const selectionStart = ref<Slot | null>(null)
@@ -38,11 +27,11 @@ export function useSlotSelection(
   const dragOrigin = ref<Slot | null>(null)
   const dropTargetSlots = ref<Slot[]>([])
 
-  function isSelected(slot: Slot): boolean {
+  const isSelected = (slot: Slot): boolean => {
     return selectedSlots.value.some(s => s.rowId === slot.rowId && s.columnId === slot.columnId)
   }
 
-  function findGroup(slot: Slot): Slot[] {
+  const findGroup = (slot: Slot): Slot[] => {
     return (
       selectedGroups.value.find(group =>
         group.some(s => s.rowId === slot.rowId && s.columnId === slot.columnId)
@@ -50,7 +39,7 @@ export function useSlotSelection(
     )
   }
 
-  function rangeSlots(start: Slot, end: Slot): Slot[] {
+  const rangeSlots = (start: Slot, end: Slot): Slot[] => {
     if (start.rowId !== end.rowId) return []
     const idxStart = columns.findIndex(c => c.id === start.columnId)
     const idxEnd = columns.findIndex(c => c.id === end.columnId)
@@ -58,21 +47,21 @@ export function useSlotSelection(
     return columns.slice(a, b + 1).map(c => ({ rowId: start.rowId, columnId: c.id }))
   }
 
-  function hasNeighbor(slot: Slot, offset: number): boolean {
+  const hasNeighbor = (slot: Slot, offset: number): boolean => {
     const idx = columns.findIndex(c => c.id === slot.columnId)
     const neighbor = columns[idx + offset]
     if (!neighbor) return false
     return findGroup(slot).some(s => s.rowId === slot.rowId && s.columnId === neighbor.id)
   }
 
-  function hasHoveredNeighbor(slot: Slot, offset: number): boolean {
+  const hasHoveredNeighbor = (slot: Slot, offset: number): boolean => {
     const idx = columns.findIndex(c => c.id === slot.columnId)
     const neighbor = columns[idx + offset]
     if (!neighbor) return false
     return hoveredSlots.value.some(s => s.rowId === slot.rowId && s.columnId === neighbor.id)
   }
 
-  function resetState() {
+  const resetState = () => {
     selectionStart.value = null
     hoveredSlots.value = []
     draggingSlots.value = null
@@ -80,20 +69,19 @@ export function useSlotSelection(
     dropTargetSlots.value = []
   }
 
-  function handleMouseDown(slot: Slot) {
+  const handleMouseDown = (slot: Slot) => {
     selectionStart.value = slot
     hoveredSlots.value = [slot]
   }
 
-  function handleMouseEnter(slot: Slot) {
+  const handleMouseEnter = (slot: Slot) => {
     if (!selectionStart.value) return
     hoveredSlots.value = rangeSlots(selectionStart.value, slot)
   }
 
-  function handleMouseUp(slot: Slot) {
+  const handleMouseUp = (slot: Slot) => {
     if (!selectionStart.value) return
 
-    // Determine target slots: drag vs click
     const slots =
       hoveredSlots.value.length > 1
         ? [...hoveredSlots.value]
@@ -125,7 +113,7 @@ export function useSlotSelection(
     resetState()
   }
 
-  async function handleDragStart(event: DragEvent, slot: Slot) {
+  const handleDragStart = async (event: DragEvent, slot: Slot) => {
     const group = findGroup(slot)
     draggingSlots.value = [...group]
     dragOrigin.value = slot
@@ -159,11 +147,11 @@ export function useSlotSelection(
     setTimeout(() => document.body.removeChild(ghost), 0)
   }
 
-  function handleDragOver(event: DragEvent) {
+  const handleDragOver = (event: DragEvent) => {
     event.preventDefault()
   }
 
-  function handleDragEnter(target: Slot) {
+  const handleDragEnter = (target: Slot) => {
     if (!draggingSlots.value) return
     const originRow = draggingSlots.value[0].rowId
     if (!allowCrossRowDrop && target.rowId !== originRow) {
@@ -180,7 +168,7 @@ export function useSlotSelection(
         : []
   }
 
-  function handleDrop(target: Slot) {
+  const handleDrop = (target: Slot) => {
     if (!draggingSlots.value || !dragOrigin.value) return
     if (!allowCrossRowDrop && target.rowId !== draggingSlots.value[0].rowId) {
       alert('Cross-row drop is disabled.')
