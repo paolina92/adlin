@@ -5,15 +5,17 @@ import { columns } from '@/constants/reservation'
 import SlotGrid from '@/components/reservation/SlotGrid'
 import { useRooms } from '@/composables/useRooms'
 import { useReservations } from '@/composables/useReservations'
-import type { Reservation } from '@/types/interfaces'
+import type { ApiReservation } from '@/types/interfaces'
 
 const { formattedRooms: rows, isLoading: isLoadingRooms, error: roomsError } = useRooms()
 const { reservations, isLoading: isLoadingReservations, error: reservationsError } = useReservations()
 
 // 🎯 Mapping : Reservation → Slot[]
-function slotsFor(res: Reservation): Slot[] {
+function slotsFor(res: ApiReservation): Slot[] {
   const arr: Slot[] = []
-  for (let h = res.start; h < res.end; h++) {
+  const start = new Date(res.startDate).getHours()
+  const end = new Date(res.endDate).getHours()
+  for (let h = start; h < end; h++) {
     arr.push({ rowId: res.roomId.toString(), columnId: `${h}:00` })
   }
   return arr

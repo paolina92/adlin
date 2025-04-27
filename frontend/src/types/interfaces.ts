@@ -39,6 +39,14 @@ declare module '@/types/interfaces' {
     end: number
   }
 
+  interface ApiReservation {
+    id: number
+    roomId: number
+    startDate: string
+    endDate: string
+    room?: Room
+  }
+
   export interface UseRoomsReturn {
     rooms: Ref<Room[] | undefined>
     filteredRooms: Ref<Room[]>
