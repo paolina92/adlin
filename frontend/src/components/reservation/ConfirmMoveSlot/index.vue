@@ -2,6 +2,7 @@
 import type { Slot, TimeColumn } from '@/types/slotGrid'
 import Dialog from '@/components/shared/Dialog'
 import BaseButton from '@/components/shared/BaseButton'
+import { useTimeMessage } from '@/composables/useTimeMessage'
 
 const props = defineProps<{
   moveDialogOpen: boolean
@@ -16,14 +17,11 @@ const emit = defineEmits<{
   'update:moveDialogOpen': [value: boolean]
 }>()
 
+const { getMessage, getMoveMessage } = useTimeMessage()
+
 const getTimeMessage = () => {
   if (props.moveFrom.length === 0 || props.dropTargetSlots.length === 0) return ''
-  const startColumn = props.columns.find(col => col.id === props.dropTargetSlots[0].columnId)
-  const endColumn = props.columns.find(
-    col => col.id === props.dropTargetSlots[props.dropTargetSlots.length - 1].columnId
-  )
-  if (!startColumn || !endColumn) return ''
-  return `Move reservation to ${startColumn.label} - ${endColumn.label}?`
+  return getMessage(props.dropTargetSlots, props.columns, getMoveMessage)
 }
 </script>
 
