@@ -45,3 +45,8 @@ declare module '@/api/*' {
   const api: unknown
   export default api
 }
+
+declare module '@/utils/*' {
+  const utils: unknown
+  export default utils
+}

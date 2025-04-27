@@ -4,6 +4,7 @@ import SlotGrid from '@/components/reservation/SlotGrid'
 import { useRooms } from '@/composables/useRooms'
 import { useReservations } from '@/composables/useReservations'
 import { useReservationStore } from '@/stores/reservation'
+import { toISODate } from '@/utils/date'
 
 const { formattedRooms: rows, isLoading: isLoadingRooms, error: roomsError } = useRooms()
 const { isLoading: isLoadingReservations, error: reservationsError, currentGroups, createReservationMutation } = useReservations()
@@ -24,25 +25,9 @@ const store = useReservationStore()
         ({ slots }) => {
           const startHour = parseInt(slots[0].columnId.split(':')[0])
           const endHour = parseInt(slots[slots.length - 1].columnId.split(':')[0]) + 1
-          const date = new Date(
-            store.selectedDate.year,
-            store.selectedDate.month - 1,
-            store.selectedDate.day,
-            startHour,
-            0,
-            0
-          )
-          const endDate = new Date(
-            store.selectedDate.year,
-            store.selectedDate.month - 1,
-            store.selectedDate.day,
-            endHour,
-            0,
-            0
-          )
           createReservationMutation({
-            startDate: date.toISOString(),
-            endDate: endDate.toISOString(),
+            startDate: toISODate(store.selectedDate, startHour),
+            endDate: toISODate(store.selectedDate, endHour),
             roomId: parseInt(slots[0].rowId),
           })
         }

@@ -3,33 +3,13 @@ import { createReservation, getReservations } from '@/api/reservation'
 import { useReservationStore } from '@/stores/reservation'
 import { computed, ref, watch } from 'vue'
 import type { Slot, ApiReservation } from '@/types/interfaces'
+import { getStartOfDay, getEndOfDay, fromISODate } from '@/utils/date'
 
 export const useReservations = () => {
   const store = useReservationStore()
 
-  const startDateISO = computed(() => {
-    const startDate = new Date(
-      store.selectedDate.year,
-      store.selectedDate.month - 1,
-      store.selectedDate.day,
-      0,
-      0,
-      0
-    )
-    return startDate.toLocaleString('sv', { timeZone: 'Europe/Paris' }).replace(' ', 'T')
-  })
-
-  const endDateISO = computed(() => {
-    const endDate = new Date(
-      store.selectedDate.year,
-      store.selectedDate.month - 1,
-      store.selectedDate.day,
-      23,
-      59,
-      59
-    )
-    return endDate.toLocaleString('sv', { timeZone: 'Europe/Paris' }).replace(' ', 'T')
-  })
+  const startDateISO = computed(() => getStartOfDay(store.selectedDate))
+  const endDateISO = computed(() => getEndOfDay(store.selectedDate))
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['reservations', startDateISO, endDateISO],
@@ -43,8 +23,10 @@ export const useReservations = () => {
 
   const slotsFor = (res: ApiReservation): Slot[] => {
     const arr: Slot[] = []
-    const start = new Date(res.startDate).getHours()
-    const end = new Date(res.endDate).getHours()
+    const startDate = new Date(res.startDate)
+    const endDate = new Date(res.endDate)
+    const start = startDate.getUTCHours()
+    const end = endDate.getUTCHours()
     for (let h = start; h < end; h++) {
       arr.push({ rowId: res.roomId.toString(), columnId: `${h}:00` })
     }
