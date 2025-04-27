@@ -39,6 +39,13 @@ declare module '@/types/interfaces' {
     end: number
   }
 
+  export interface UseRoomsReturn {
+    rooms: Ref<Room[] | undefined>
+    formattedRooms: Ref<Row[]>
+    isLoading: Ref<boolean>
+    error: Ref<Error | null>
+  }
+
   export interface UseSlotGridReturn {
     deleteCandidate: Ref<Slot[]>
     deletePopoverOpen: Ref<boolean>

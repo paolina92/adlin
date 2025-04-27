@@ -3,14 +3,9 @@ import { ref } from 'vue'
 import type { Slot } from '@/types/interfaces'
 import { columns } from '@/constants/reservation'
 import SlotGrid from '@/components/reservation/SlotGrid'
+import { useRooms } from '@/composables/useRooms'
 
-// 🧩 MOCK : Les salles
-const rooms = [
-  { id: 1, name: 'Arena', capacity: 30 },
-  { id: 2, name: 'Blue', capacity: 4 },
-  { id: 3, name: 'Red', capacity: 6 },
-]
-const rows = rooms.map(r => ({ id: r.id.toString(), label: `${r.name} (${r.capacity}p)` }))
+const { formattedRooms: rows, isLoading, error } = useRooms()
 
 // 🧩 MOCK : Les réservations existantes
 const reservations = [
@@ -36,7 +31,12 @@ const currentGroups = ref<Slot[][]>(initialGroups.value)
 
 <template>
   <div class="p-8">
+    <div v-if="isLoading" class="text-center">Loading</div>
+    <div v-else-if="error" class="text-center text-black">
+      Error while loading rooms
+    </div>
     <SlotGrid
+      v-else
       :rows="rows"
       :columns="columns"
       :initial-groups="currentGroups"
