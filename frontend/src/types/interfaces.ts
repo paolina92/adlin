@@ -80,5 +80,6 @@ declare module '@/types/interfaces' {
     cancelCreate(): void
     confirmMove(): void
     cancelMove(): void
+    updateGroups(groups: Slot[][]): void
   }
 }

@@ -34,6 +34,10 @@ export const useSlotGrid = ({
   const moveTo = ref<Slot[]>([])
   const moveDialogOpen = ref(false)
 
+  const updateGroups = (groups: Slot[][]) => {
+    selectedGroups.value = [...groups]
+  }
+
   const isSelected = (slot: Slot): boolean => {
     return selectedSlots.value.some(s => s.rowId === slot.rowId && s.columnId === slot.columnId)
   }
@@ -268,5 +272,6 @@ export const useSlotGrid = ({
     cancelMove,
     confirmDelete,
     cancelDelete,
+    updateGroups,
   }
 }

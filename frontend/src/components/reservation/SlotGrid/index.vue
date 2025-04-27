@@ -5,6 +5,7 @@ import SlotGridHeader from '@/components/reservation/SlotGridHeader'
 import SlotGridRow from '@/components/reservation/SlotGridRow'
 import ConfirmCreateSlot from '@/components/reservation/ConfirmCreateSlot'
 import ConfirmMoveSlot from '@/components/reservation/ConfirmMoveSlot'
+import { watch } from 'vue'
 
 const props = defineProps<{
   rows: Row[]
@@ -44,12 +45,23 @@ const {
   cancelMove,
   confirmDelete,
   cancelDelete,
+  updateGroups,
 } = useSlotGrid({
   columns: props.columns,
   initialGroups: props.initialGroups || [],
   allowCrossRowDrop: props.allowCrossRowDrop ?? true,
   emit,
 })
+
+watch(
+  () => props.initialGroups,
+  (newGroups) => {
+    if (newGroups) {
+      updateGroups(newGroups)
+    }
+  },
+  { immediate: true }
+)
 </script>
 
 <template>

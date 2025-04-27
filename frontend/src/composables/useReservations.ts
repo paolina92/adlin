@@ -34,6 +34,7 @@ export const useReservations = () => {
   const { data, isLoading, error } = useQuery({
     queryKey: ['reservations', startDateISO, endDateISO],
     queryFn: () => getReservations({ startDate: startDateISO.value, endDate: endDateISO.value }),
+    staleTime: Infinity,
   })
 
   const reservations = computed(() => {
