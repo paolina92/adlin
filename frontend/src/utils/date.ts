@@ -1,8 +1,8 @@
 import { CalendarDate, type AnyCalendarDate } from '@internationalized/date'
 
 export const toISODate = (date: AnyCalendarDate, hour: number): string => {
-  const jsDate = new Date(date.year, date.month - 1, date.day, hour, 0, 0)
-  return jsDate.toLocaleString('sv', { timeZone: 'Europe/Paris' }).replace(' ', 'T')
+  const jsDate = new Date(Date.UTC(date.year, date.month - 1, date.day, hour, 0, 0))
+  return jsDate.toISOString()
 }
 
 export const fromISODate = (isoDate: string): { date: CalendarDate; hour: number } => {
