@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import BaseButton from '@/components/BaseButton'
+import BaseButton from '@/components/shared/BaseButton'
 
 const emit = defineEmits<{
   (e: 'cancel'): void

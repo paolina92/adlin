@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { CalendarDate } from '@internationalized/date'
-import Calendar from '@/components/Calendar'
-import QuantityControl from '@/components/QuantityControl'
-import BaseSelect from '@/components/BaseSelect'
+import Calendar from '@/components/shared/Calendar'
+import QuantityControl from '@/components/shared/QuantityControl'
+import BaseSelect from '@/components/shared/BaseSelect'
 
 const today = new Date()
 const todayCalendarDate = new CalendarDate(

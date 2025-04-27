@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Slot } from '@/types/interfaces'
-import Dialog from '@/components/Dialog'
-import BaseButton from '@/components/BaseButton'
+import Dialog from '@/components/shared/Dialog'
+import BaseButton from '@/components/shared/BaseButton'
 
 const props = defineProps<{
   createDialogOpen: boolean

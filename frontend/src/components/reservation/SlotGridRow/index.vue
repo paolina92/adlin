@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { Row, TimeColumn, Slot } from '@/types/interfaces'
-import Popover from '@/components/Popover'
-import SlotGridCell from '@/components/SlotGrid/SlotGridCell'
-import ConfirmDeleteSlot from '@/components/SlotGrid/ConfirmDeleteSlot'
+import Popover from '@/components/shared/Popover'
+import SlotGridCell from '@/components/reservation/SlotGridCell'
+import ConfirmDeleteSlot from '@/components/reservation/ConfirmDeleteSlot'
 
 const props = defineProps<{
   row: Row
