@@ -25,3 +25,13 @@ declare module '@/types/*' {
   const type: unknown
   export default type
 }
+
+declare module '@/stores/*' {
+  const stores: unknown
+  export default stores
+}
+
+declare module '@/constants/*' {
+  const constants: unknown
+  export default constants
+}

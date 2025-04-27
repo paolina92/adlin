@@ -1,25 +1,19 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { watch } from 'vue'
+import { storeToRefs } from 'pinia'
+import { useReservationStore } from '@/stores/reservation'
 import { CalendarDate } from '@internationalized/date'
+import { equipmentOptions } from '@/constants/reservation'
 import Calendar from '@/components/shared/Calendar'
 import QuantityControl from '@/components/shared/QuantityControl'
 import BaseSelect from '@/components/shared/BaseSelect'
 
-const today = new Date()
-const todayCalendarDate = new CalendarDate(
-  today.getFullYear(),
-  today.getMonth() + 1,
-  today.getDate()
-)
-const selectedDate = ref<CalendarDate>(todayCalendarDate)
-const quantity = ref(1)
+const store = useReservationStore()
+const { selectedDate, quantity, selectedEquipment } = storeToRefs(store)
 
 const isDateUnavailable = (date: CalendarDate) => {
-  return date.compare(todayCalendarDate) < 0
+  return date.compare(selectedDate.value) < 0
 }
-
-const equipmentOptions = ['Projector', 'TV']
-const selectedEquipment = ref<string | undefined>(undefined)
 
 watch(selectedDate, newVal => {
   if (newVal) {
