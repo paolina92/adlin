@@ -161,7 +161,7 @@ export const useSlotGrid = ({
 
     document.body.appendChild(ghost)
     const rect = ghost.getBoundingClientRect()
-    event.dataTransfer?.setDragImage(ghost, rect.width / 2, rect.height / 2)
+    event.dataTransfer?.setDragImage(ghost, 0, rect.height / 2)
     setTimeout(() => document.body.removeChild(ghost), 0)
   }
 
