@@ -10,8 +10,7 @@ import type { ApiReservation } from '@/types/interfaces'
 const { formattedRooms: rows, isLoading: isLoadingRooms, error: roomsError } = useRooms()
 const { reservations, isLoading: isLoadingReservations, error: reservationsError } = useReservations()
 
-// 🎯 Mapping : Reservation → Slot[]
-function slotsFor(res: ApiReservation): Slot[] {
+const slotsFor = (res: ApiReservation): Slot[] => {
   const arr: Slot[] = []
   const start = new Date(res.startDate).getHours()
   const end = new Date(res.endDate).getHours()
@@ -21,15 +20,11 @@ function slotsFor(res: ApiReservation): Slot[] {
   return arr
 }
 
-// **→** on crée un tableau de groupes de slots
 const initialGroups = computed(() => {
   return reservations.value.map(slotsFor)
 })
-
-// plus tard, si tu veux garder la main sur les groupes créés/supprimés :
 const currentGroups = ref<Slot[][]>(initialGroups.value)
 
-// Mettre à jour currentGroups quand initialGroups change
 watch(initialGroups, (newGroups) => {
   currentGroups.value = newGroups
 }, { immediate: true })
