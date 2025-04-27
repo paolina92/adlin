@@ -90,6 +90,14 @@ export const useSlotGrid = ({
     hoveredSlots.value = rangeSlots(selectionStart.value, slot)
   }
 
+  const hasOverlap = (slots: Slot[]): boolean => {
+    return slots.some(slot =>
+      selectedSlots.value.some(
+        existingSlot => existingSlot.rowId === slot.rowId && existingSlot.columnId === slot.columnId
+      )
+    )
+  }
+
   const handleMouseUp = (slot: Slot) => {
     if (!selectionStart.value) return
 
@@ -112,6 +120,11 @@ export const useSlotGrid = ({
       resetState()
       return
     } else {
+      if (hasOverlap(slots)) {
+        alert('Impossible to create reservation with overlapping times')
+        resetState()
+        return
+      }
       createCandidate.value = slots
       createDialogOpen.value = true
     }
