@@ -3,6 +3,7 @@ import type { Row, TimeColumn, Slot } from '@/types/interfaces'
 import Popover from '@/components/Popover'
 import SlotGridCell from '@/components/SlotGrid/SlotGridCell'
 import ConfirmDeleteSlot from '@/components/ConfirmDeleteSlot'
+
 const props = defineProps<{
   row: Row
   columns: TimeColumn[]

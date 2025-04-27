@@ -30,7 +30,7 @@ declare module '@/types/interfaces' {
   }
 
   export interface UseSlotGridReturn {
-    deleteCandidate: Ref<Slot[] | null>
+    deleteCandidate: Ref<Slot[]>
     deletePopoverOpen: Ref<boolean>
     hoveredSlots: Ref<Slot[]>
     dropTargetSlots: Ref<Slot[]>
