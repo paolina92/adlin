@@ -1,4 +1,5 @@
 import type { Ref } from 'vue'
+import type { MutateFunction } from '@tanstack/vue-query'
 
 declare module '@/types/interfaces' {
   export interface Slot {
@@ -83,4 +84,25 @@ declare module '@/types/interfaces' {
     cancelMove(): void
     updateGroups(groups: Slot[][]): void
   }
+}
+
+export interface UseReservationsReturn {
+  reservations: Ref<ApiReservation[]>
+  isLoading: Ref<boolean>
+  error: Ref<Error | null>
+  currentGroups: Ref<Slot[][]>
+  slotsFor: (res: ApiReservation) => Slot[]
+  createReservationMutation: MutateFunction<
+    ApiReservation,
+    Error,
+    { startDate: string; endDate: string; roomId: number },
+    unknown
+  >
+  deleteReservationMutation: MutateFunction<void, Error, { reservationId: string }, unknown>
+  updateReservationMutation: MutateFunction<
+    void,
+    Error,
+    { reservationId: string; startDate: string; endDate: string },
+    unknown
+  >
 }

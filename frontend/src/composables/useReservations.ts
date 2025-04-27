@@ -7,10 +7,10 @@ import {
 } from '@/api/reservation'
 import { useReservationStore } from '@/stores/reservation'
 import { computed, ref, watch } from 'vue'
-import type { Slot, ApiReservation } from '@/types/interfaces'
+import type { Slot, ApiReservation, UseReservationsReturn } from '@/types/interfaces'
 import { getStartOfDay, getEndOfDay } from '@/utils/date'
 
-export const useReservations = () => {
+export const useReservations = (): UseReservationsReturn => {
   const store = useReservationStore()
 
   const startDateISO = computed(() => getStartOfDay(store.selectedDate))
@@ -54,14 +54,14 @@ export const useReservations = () => {
 
   const queryClient = useQueryClient()
 
-  const { mutate: createReservationMutation } = useMutation({
+  const { mutateAsync: createReservationMutation } = useMutation({
     mutationFn: createReservation,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['reservations'] })
     },
   })
 
-  const { mutate: deleteReservationMutation } = useMutation({
+  const { mutateAsync: deleteReservationMutation } = useMutation({
     mutationFn: ({ reservationId }: { reservationId: string }) =>
       deleteReservation({ reservationId }),
     onSuccess: () => {
@@ -69,7 +69,7 @@ export const useReservations = () => {
     },
   })
 
-  const { mutate: updateReservationMutation } = useMutation({
+  const { mutateAsync: updateReservationMutation } = useMutation({
     mutationFn: ({
       reservationId,
       startDate,
