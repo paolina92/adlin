@@ -76,6 +76,16 @@ async function main() {
         startDate: new Date('2025-04-28T14:00:00Z'),
         endDate: new Date('2025-04-28T16:00:00Z'),
       },
+      {
+        roomId: rooms[0].id,
+        startDate: new Date('2025-04-27T08:00:00Z'),
+        endDate: new Date('2025-04-27T09:00:00Z'),
+      },
+      {
+        roomId: rooms[1].id,
+        startDate: new Date('2025-04-27T12:00:00Z'),
+        endDate: new Date('2025-04-27T15:00:00Z'),
+      },
     ],
   });
 
