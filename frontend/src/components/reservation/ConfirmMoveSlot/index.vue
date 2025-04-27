@@ -9,13 +9,18 @@ const props = defineProps<{
   cancelMove: () => void
   confirmMove: () => void
 }>()
+
+const emit = defineEmits<{
+  'update:moveDialogOpen': [value: boolean]
+}>()
 </script>
 
 <template>
   <Dialog
-    v-model:open="props.moveDialogOpen"
+    :open="props.moveDialogOpen"
     title="Déplacer la réservation"
     :description="`Déplacer le groupe de ${props.moveFrom.length} créneau${props.moveFrom.length > 1 ? 'x' : ''} ?`"
+    @update:open="value => emit('update:moveDialogOpen', value)"
   >
     <div class="flex justify-end space-x-2">
       <BaseButton label="Annuler" @click="props.cancelMove" />

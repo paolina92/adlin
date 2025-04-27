@@ -16,10 +16,20 @@ declare module '@/types/interfaces' {
     label: string
   }
 
+  export interface Equipement {
+    id: number
+    name: string
+    roomId: number
+  }
+
   export interface Room {
     id: number
     name: string
+    description: string
     capacity: number
+    createdAt: string
+    updatedAt: string
+    equipements: Equipement[]
   }
 
   export interface Reservation {

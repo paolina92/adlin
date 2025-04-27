@@ -35,3 +35,13 @@ declare module '@/constants/*' {
   const constants: unknown
   export default constants
 }
+
+declare module '@/services/*' {
+  const services: unknown
+  export default services
+}
+
+declare module '@/api/*' {
+  const api: unknown
+  export default api
+}
