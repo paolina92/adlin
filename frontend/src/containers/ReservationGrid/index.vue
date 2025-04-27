@@ -18,9 +18,13 @@ const {
 } = useReservations()
 const store = useReservationStore()
 
+const parseHour = (columnId: string): number => {
+  return parseInt(columnId.split(':')[0], 10)
+}
+
 const createReservation = (slots: Slot[]) => {
-  const startHour = parseInt(slots[0].columnId.split(':')[0])
-  const endHour = parseInt(slots[slots.length - 1].columnId.split(':')[0]) + 1
+  const startHour = parseHour(slots[0].columnId)
+  const endHour = parseHour(slots.at(-1)!.columnId) + 1
   createReservationMutation({
     startDate: toISODate(store.selectedDate, startHour),
     endDate: toISODate(store.selectedDate, endHour),
@@ -30,21 +34,22 @@ const createReservation = (slots: Slot[]) => {
 
 const moveReservation = (from: Slot[], to: Slot[]) => {
   if (!from[0].reservationId) return
+  const reservationId = String(from[0].reservationId)
+  const startHour = parseHour(to[0].columnId)
+  const endHour = parseHour(to.at(-1)!.columnId) + 1
   updateReservationMutation({
-    reservationId: from[0].reservationId.toString(),
-    startDate: toISODate(store.selectedDate, parseInt(to[0].columnId.split(':')[0])),
-    endDate: toISODate(
-      store.selectedDate,
-      parseInt(to[to.length - 1].columnId.split(':')[0]) + 1
-    ),
+    reservationId,
+    startDate: toISODate(store.selectedDate, startHour),
+    endDate: toISODate(store.selectedDate, endHour),
   })
 }
 
 const deleteReservation = (slots: Slot[]) => {
   if (!slots[0].reservationId) return
-  deleteReservationMutation({
-    reservationId: slots[0].reservationId.toString(),
-  })
+  const id = slots[0].reservationId
+  if (id) {
+    deleteReservationMutation({ reservationId: String(id) })
+  }
 }
 </script>
 
