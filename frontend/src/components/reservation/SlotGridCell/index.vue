@@ -21,7 +21,7 @@ const props = defineProps<{
 const cellClasses = computed(() => ({
   'bg-brand/80': props.isSelected(props.cell),
   'bg-brand/70': props.hovered,
-  'bg-gray': props.dropTarget,
+  'bg-brand/20': props.dropTarget,
   'border-l-0': props.hasLeftBorder,
   'border-r-0': props.hasRightBorder,
 }))

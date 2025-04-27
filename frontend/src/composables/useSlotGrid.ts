@@ -128,7 +128,6 @@ export const useSlotGrid = ({
       createCandidate.value = slots
       createDialogOpen.value = true
     }
-
     resetState()
   }
 
