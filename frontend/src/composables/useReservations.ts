@@ -1,5 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
-import { createReservation, deleteReservation, getReservations } from '@/api/reservation'
+import {
+  createReservation,
+  deleteReservation,
+  getReservations,
+  updateReservation,
+} from '@/api/reservation'
 import { useReservationStore } from '@/stores/reservation'
 import { computed, ref, watch } from 'vue'
 import type { Slot, ApiReservation } from '@/types/interfaces'
@@ -64,6 +69,21 @@ export const useReservations = () => {
     },
   })
 
+  const { mutate: updateReservationMutation } = useMutation({
+    mutationFn: ({
+      reservationId,
+      startDate,
+      endDate,
+    }: {
+      reservationId: string
+      startDate: string
+      endDate: string
+    }) => updateReservation({ reservationId, startDate, endDate }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['reservations'] })
+    },
+  })
+
   return {
     reservations,
     isLoading,
@@ -72,5 +92,6 @@ export const useReservations = () => {
     slotsFor,
     createReservationMutation,
     deleteReservationMutation,
+    updateReservationMutation,
   }
 }

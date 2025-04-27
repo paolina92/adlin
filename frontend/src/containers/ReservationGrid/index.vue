@@ -13,6 +13,7 @@ const {
   currentGroups,
   createReservationMutation,
   deleteReservationMutation,
+  updateReservationMutation,
 } = useReservations()
 const store = useReservationStore()
 </script>
@@ -42,7 +43,11 @@ const store = useReservationStore()
       "
       @move="
         ({ from, to }) => {
-          /* mutation update */
+          updateReservationMutation({
+            reservationId: from[0].reservationId.toString(),
+            startDate: toISODate(store.selectedDate, parseInt(to[0].columnId.split(':')[0])),
+            endDate: toISODate(store.selectedDate, parseInt(to[to.length - 1].columnId.split(':')[0]) + 1),
+          })
         }
       "
       @delete="

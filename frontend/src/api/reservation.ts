@@ -38,5 +38,27 @@ export const deleteReservation = async ({
 }: {
   reservationId: string
 }): Promise<void> => {
-  await ApiService.delete(`reservations/${reservationId}`)
+  try {
+    await ApiService.delete(`reservations/${reservationId}`)
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
+}
+
+export const updateReservation = async ({
+  reservationId,
+  startDate,
+  endDate,
+}: {
+  reservationId: string
+  startDate: string
+  endDate: string
+}): Promise<void> => {
+  try {
+    await ApiService.put(`reservations/${reservationId}`, { startDate, endDate })
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
 }
