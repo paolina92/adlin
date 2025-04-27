@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/vue-query'
 import { getReservations } from '@/api/reservation'
 import { useReservationStore } from '@/stores/reservation'
+import { computed } from 'vue'
 
 export const useReservations = () => {
   const store = useReservationStore()
@@ -24,14 +25,13 @@ export const useReservations = () => {
     .toLocaleString('sv', { timeZone: 'Europe/Paris' })
     .replace(' ', 'T')
   const endDateISO = endDate.toLocaleString('sv', { timeZone: 'Europe/Paris' }).replace(' ', 'T')
-
-  const {
-    data: reservations,
-    isLoading,
-    error,
-  } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['reservations', startDateISO, endDateISO],
     queryFn: () => getReservations({ startDate: startDateISO, endDate: endDateISO }),
+  })
+
+  const reservations = computed(() => {
+    return data.value || []
   })
 
   return {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { Slot } from '@/types/interfaces'
 import { columns } from '@/constants/reservation'
 import SlotGrid from '@/components/reservation/SlotGrid'
@@ -22,12 +22,17 @@ function slotsFor(res: ApiReservation): Slot[] {
 }
 
 // **→** on crée un tableau de groupes de slots
-const initialGroups = computed(() => 
-  reservations.value ? reservations.value.map(slotsFor) : []
-)
+const initialGroups = computed(() => {
+  return reservations.value.map(slotsFor)
+})
 
 // plus tard, si tu veux garder la main sur les groupes créés/supprimés :
 const currentGroups = ref<Slot[][]>(initialGroups.value)
+
+// Mettre à jour currentGroups quand initialGroups change
+watch(initialGroups, (newGroups) => {
+  currentGroups.value = newGroups
+}, { immediate: true })
 </script>
 
 <template>
