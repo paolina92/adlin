@@ -5,7 +5,7 @@ import { useRooms } from '@/composables/useRooms'
 import { useReservations } from '@/composables/useReservations'
 
 const { formattedRooms: rows, isLoading: isLoadingRooms, error: roomsError } = useRooms()
-const { isLoading: isLoadingReservations, error: reservationsError, currentGroups } = useReservations()
+const { isLoading: isLoadingReservations, error: reservationsError, currentGroups, createReservationMutation } = useReservations()
 </script>
 
 <template>
@@ -20,7 +20,11 @@ const { isLoading: isLoadingReservations, error: reservationsError, currentGroup
       :allow-cross-row-drop="false"
       @create="
         ({ slots }) => {
-          /* mutation create */
+          createReservationMutation({
+            startDate: slots[0].startDate,
+            endDate: slots[0].endDate,
+            roomId: slots[0].roomId,
+          })
         }
       "
       @move="

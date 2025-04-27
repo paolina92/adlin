@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/vue-query'
-import { getReservations } from '@/api/reservation'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+import { createReservation, getReservations } from '@/api/reservation'
 import { useReservationStore } from '@/stores/reservation'
 import { computed, ref, watch } from 'vue'
 import type { Slot, ApiReservation } from '@/types/interfaces'
@@ -65,11 +65,21 @@ export const useReservations = () => {
     { immediate: true }
   )
 
+  const queryClient = useQueryClient()
+
+  const { mutate: createReservationMutation } = useMutation({
+    mutationFn: createReservation,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['reservations', { startDateISO, endDateISO }] })
+    },
+  })
+
   return {
     reservations,
     isLoading,
     error,
-    slotsFor,
     currentGroups,
+    slotsFor,
+    createReservationMutation,
   }
 }

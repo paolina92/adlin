@@ -15,3 +15,20 @@ export const getReservations = async ({
     throw error
   }
 }
+
+export const createReservation = async ({
+  startDate,
+  endDate,
+  roomId,
+}: {
+  startDate: string
+  endDate: string
+  roomId: number
+}): Promise<ApiReservation> => {
+  try {
+    return await ApiService.post('reservations', { startDate, endDate, roomId })
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
+}
