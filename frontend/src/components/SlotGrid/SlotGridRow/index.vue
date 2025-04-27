@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import type { Row, TimeColumn, Slot } from '@/types/interfaces'
 import Popover from '@/components/Popover'
-import BaseButton from '@/components/BaseButton'
 import SlotGridCell from '@/components/SlotGrid/SlotGridCell'
-
+import ConfirmDeleteSlot from '@/components/ConfirmDeleteSlot'
 const props = defineProps<{
   row: Row
   columns: TimeColumn[]
@@ -27,13 +26,11 @@ const props = defineProps<{
 
 const { row, columns } = props
 
-// est-ce la première case du groupe à delete ?
 const isFirstDelete = (colId: string) =>
   props.deleteCandidate.length > 0 &&
   props.deleteCandidate[0].rowId === row.id &&
   props.deleteCandidate[0].columnId === colId
 
-// helpers pour l'état de chaque cellule
 const hovered = (colId: string) =>
   props.hoveredSlots.some(s => s.rowId === row.id && s.columnId === colId)
 
@@ -58,14 +55,11 @@ const rightBorder = (colId: string) => {
 </script>
 
 <template>
-  <!-- Étiquette de la ligne -->
   <div class="border border-gray p-2 font-medium bg-white">
     {{ row.label }}
   </div>
 
-  <!-- Une cellule par colonne -->
   <template v-for="col in columns" :key="`${row.id}-${col.id}`">
-    <!-- cas popover suppression -->
     <Popover
       v-if="deletePopoverOpen && isFirstDelete(col.id)"
       :open="deletePopoverOpen"
@@ -89,17 +83,13 @@ const rightBorder = (colId: string) => {
         />
       </template>
 
-      <!-- contenu du popover -->
-      <div class="flex flex-col gap-4 p-4">
-        <p>Voulez-vous supprimer cette réservation ?</p>
-        <div class="flex justify-end space-x-2">
-          <BaseButton label="Annuler" @click="cancelDelete" />
-          <BaseButton label="Confirmer" @click="confirmDelete" />
-        </div>
-      </div>
+      <ConfirmDeleteSlot
+        :open="deletePopoverOpen"
+        @cancel="cancelDelete"
+        @confirm="confirmDelete"
+      />
     </Popover>
 
-    <!-- cas normal -->
     <SlotGridCell
       v-else
       :cell="{ rowId: row.id, columnId: col.id }"
