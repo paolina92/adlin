@@ -188,7 +188,6 @@ export const useSlotGrid = ({
       )
     )
     if (overlap) {
-      alert('Cannot drop: conflict with existing slots.')
       resetState()
       return
     }
