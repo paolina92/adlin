@@ -4,8 +4,7 @@ import type { Row, TimeColumn, Slot } from '@/types/interfaces'
 import SlotGridHeader from '@/components/reservation/SlotGridHeader'
 import SlotGridRow from '@/components/reservation/SlotGridRow'
 import ConfirmCreateSlot from '@/components/reservation/ConfirmCreateSlot'
-import Dialog from '@/components/shared/Dialog'
-import BaseButton from '@/components/shared/BaseButton'
+import ConfirmMoveSlot from '@/components/reservation/ConfirmMoveSlot'
 
 const props = defineProps<{
   rows: Row[]
@@ -85,14 +84,10 @@ const {
     :confirm-create="confirmCreate"
   />
 
-  <Dialog
-    v-model:open="moveDialogOpen"
-    title="Déplacer la réservation"
-    :description="`Déplacer le groupe de ${moveFrom.length} créneau${moveFrom.length > 1 ? 'x' : ''} ?`"
-  >
-    <div class="flex justify-end space-x-2">
-      <BaseButton label="Annuler" @click="cancelMove" />
-      <BaseButton label="Déplacer" @click="confirmMove" />
-    </div>
-  </Dialog>
+  <ConfirmMoveSlot
+    :move-dialog-open="moveDialogOpen"
+    :move-from="moveFrom"
+    :cancel-move="cancelMove"
+    :confirm-move="confirmMove"
+  />
 </template>
