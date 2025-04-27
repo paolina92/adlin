@@ -7,7 +7,8 @@ import {
 } from '@/api/reservation'
 import { useReservationStore } from '@/stores/reservation'
 import { computed, ref, watch } from 'vue'
-import type { Slot, ApiReservation, UseReservationsReturn } from '@/types/interfaces'
+import type { Slot } from '@/types/slotGrid'
+import type { Reservation, UseReservationsReturn } from '@/types/reservation'
 import { getStartOfDay, getEndOfDay } from '@/utils/date'
 
 export const useReservations = (): UseReservationsReturn => {
@@ -26,7 +27,7 @@ export const useReservations = (): UseReservationsReturn => {
     return data.value || []
   })
 
-  const slotsFor = (res: ApiReservation): Slot[] => {
+  const slotsFor = (res: Reservation): Slot[] => {
     const arr: Slot[] = []
     const startDate = new Date(res.startDate)
     const endDate = new Date(res.endDate)

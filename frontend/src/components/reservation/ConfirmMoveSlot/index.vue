@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Slot, TimeColumn } from '@/types/interfaces'
+import type { Slot, TimeColumn } from '@/types/slotGrid'
 import Dialog from '@/components/shared/Dialog'
 import BaseButton from '@/components/shared/BaseButton'
 
@@ -19,7 +19,9 @@ const emit = defineEmits<{
 const getTimeMessage = () => {
   if (props.moveFrom.length === 0 || props.dropTargetSlots.length === 0) return ''
   const startColumn = props.columns.find(col => col.id === props.dropTargetSlots[0].columnId)
-  const endColumn = props.columns.find(col => col.id === props.dropTargetSlots[props.dropTargetSlots.length - 1].columnId)
+  const endColumn = props.columns.find(
+    col => col.id === props.dropTargetSlots[props.dropTargetSlots.length - 1].columnId
+  )
   if (!startColumn || !endColumn) return ''
   return `Move reservation to ${startColumn.label} - ${endColumn.label}?`
 }

@@ -1,5 +1,5 @@
 import { ApiService } from '@/services/apiService'
-import type { ApiReservation } from '@/types/interfaces'
+import type { Reservation } from '@/types/reservation'
 
 export const getReservations = async ({
   startDate,
@@ -7,7 +7,7 @@ export const getReservations = async ({
 }: {
   startDate: string
   endDate: string
-}): Promise<ApiReservation[]> => {
+}): Promise<Reservation[]> => {
   try {
     return await ApiService.get(`reservations?startDate=${startDate}&endDate=${endDate}`)
   } catch (error) {
@@ -24,7 +24,7 @@ export const createReservation = async ({
   startDate: string
   endDate: string
   roomId: number
-}): Promise<ApiReservation> => {
+}): Promise<Reservation> => {
   try {
     return await ApiService.post('reservations', { startDate, endDate, roomId })
   } catch (error) {

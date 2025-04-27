@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Row, TimeColumn, Slot } from '@/types/interfaces'
+import type { Row, TimeColumn, Slot } from '@/types/slotGrid'
 import Popover from '@/components/shared/Popover'
 import SlotGridCell from '@/components/reservation/SlotGridCell'
 import ConfirmDeleteSlot from '@/components/reservation/ConfirmDeleteSlot'

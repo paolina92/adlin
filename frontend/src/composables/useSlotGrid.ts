@@ -1,5 +1,5 @@
 import { ref, computed, nextTick } from 'vue'
-import type { Slot, TimeColumn, UseSlotGridReturn } from '@/types/interfaces'
+import type { Slot, TimeColumn, UseSlotGridReturn } from '@/types/slotGrid'
 
 /**
  * Composable extracting selection, hover and drag-and-drop logic for SlotGrid.

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { TimeColumn } from '@/types/interfaces'
+import type { TimeColumn } from '@/types/slotGrid'
 
 const props = defineProps<{ columns: TimeColumn[] }>()
 </script>

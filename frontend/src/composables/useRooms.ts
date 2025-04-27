@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/vue-query'
 import { computed } from 'vue'
-import type { UseRoomsReturn } from '@/types/interfaces'
+import type { UseRoomsReturn } from '@/types/room'
 import { getRooms } from '@/api/room'
 import { useReservationStore } from '@/stores/reservation'
 import { storeToRefs } from 'pinia'

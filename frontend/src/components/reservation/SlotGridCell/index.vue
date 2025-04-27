@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { Slot } from '@/types/interfaces'
+import type { Slot } from '@/types/slotGrid'
 
 const props = defineProps<{
   cell: Slot

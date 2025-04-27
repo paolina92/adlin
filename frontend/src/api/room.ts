@@ -1,5 +1,5 @@
 import { ApiService } from '@/services/apiService'
-import type { Room } from '@/types/interfaces'
+import type { Room } from '@/types/room'
 
 export const getRooms = async (): Promise<Room[]> => {
   try {
