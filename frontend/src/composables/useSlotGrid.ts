@@ -26,6 +26,8 @@ export const useSlotGrid = ({
   const draggingSlots = ref<Slot[] | null>(null)
   const dragOrigin = ref<Slot | null>(null)
   const dropTargetSlots = ref<Slot[]>([])
+  const deleteCandidate = ref<Slot[]>([])
+  const deletePopoverOpen = ref(false)
 
   const isSelected = (slot: Slot): boolean => {
     return selectedSlots.value.some(s => s.rowId === slot.rowId && s.columnId === slot.columnId)
@@ -96,13 +98,10 @@ export const useSlotGrid = ({
 
     const allSelected = slots.every(isSelected)
     if (allSelected) {
-      if (confirm('Delete this slot group?')) {
-        selectedGroups.value = selectedGroups.value.filter(
-          group =>
-            !slots.every(s => group.some(gs => gs.rowId === s.rowId && gs.columnId === s.columnId))
-        )
-        emit('delete', { slots })
-      }
+      deleteCandidate.value = slots
+      deletePopoverOpen.value = true
+      resetState()
+      return
     } else {
       if (confirm('Create this slot group?')) {
         selectedGroups.value.push(slots)
@@ -201,9 +200,28 @@ export const useSlotGrid = ({
     resetState()
   }
 
+  const cancelDelete = () => {
+    deleteCandidate.value = []
+    deletePopoverOpen.value = false
+  }
+
+  const confirmDelete = () => {
+    if (!deleteCandidate.value) return
+    selectedGroups.value = selectedGroups.value.filter(
+      group =>
+        !deleteCandidate.value!.every(s =>
+          group.some(gs => gs.rowId === s.rowId && gs.columnId === s.columnId)
+        )
+    )
+    emit('delete', { slots: deleteCandidate.value })
+    cancelDelete()
+  }
+
   return {
     hoveredSlots,
     dropTargetSlots,
+    deleteCandidate,
+    deletePopoverOpen,
     isSelected,
     handleMouseDown,
     handleMouseEnter,
@@ -214,5 +232,7 @@ export const useSlotGrid = ({
     handleDrop,
     hasNeighbor,
     hasHoveredNeighbor,
+    confirmDelete,
+    cancelDelete,
   }
 }

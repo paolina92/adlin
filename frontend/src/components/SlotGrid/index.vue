@@ -21,6 +21,8 @@ const emit = defineEmits<{
 const {
   hoveredSlots,
   dropTargetSlots,
+  deleteCandidate,
+  deletePopoverOpen,
   isSelected,
   handleMouseDown,
   handleMouseEnter,
@@ -31,6 +33,8 @@ const {
   handleDrop,
   hasNeighbor,
   hasHoveredNeighbor,
+  confirmDelete,
+  cancelDelete,
 } = useSlotGrid({ columns, initialGroups, allowCrossRowDrop, emit })
 </script>
 
@@ -45,6 +49,8 @@ const {
         :columns="columns"
         :hovered-slots="hoveredSlots"
         :drop-target-slots="dropTargetSlots"
+        :delete-candidate="deleteCandidate"
+        :delete-popover-open="deletePopoverOpen"
         :is-selected="isSelected"
         :handle-mouse-down="handleMouseDown"
         :handle-mouse-enter="handleMouseEnter"
@@ -55,6 +61,8 @@ const {
         :handle-drop="handleDrop"
         :has-neighbor="hasNeighbor"
         :has-hovered-neighbor="hasHoveredNeighbor"
+        :confirm-delete="confirmDelete"
+        :cancel-delete="cancelDelete"
       />
     </div>
   </div>

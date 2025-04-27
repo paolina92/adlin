@@ -30,9 +30,11 @@ declare module '@/types/interfaces' {
   }
 
   export interface UseSlotGridReturn {
-    isSelected: (slot: Slot) => boolean
+    deleteCandidate: Ref<Slot[] | null>
+    deletePopoverOpen: Ref<boolean>
     hoveredSlots: Ref<Slot[]>
     dropTargetSlots: Ref<Slot[]>
+    isSelected: (slot: Slot) => boolean
     handleMouseDown(slot: Slot): void
     handleMouseEnter(slot: Slot): void
     handleMouseUp(slot: Slot): void
@@ -42,5 +44,7 @@ declare module '@/types/interfaces' {
     handleDrop(slot: Slot): void
     hasNeighbor(slot: Slot, offset: number): boolean
     hasHoveredNeighbor(slot: Slot, offset: number): boolean
+    confirmDelete(): void
+    cancelDelete(): void
   }
 }
