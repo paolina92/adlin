@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, computed } from 'vue'
 import type { Slot } from '@/types/interfaces'
 import { columns } from '@/constants/reservation'
 import SlotGrid from '@/components/reservation/SlotGrid'
@@ -10,7 +10,35 @@ import { storeToRefs } from 'pinia'
 const store = useReservationStore()
 const { quantity, selectedEquipment } = storeToRefs(store)
 
-const { formattedRooms: rows, isLoading, error } = useRooms(quantity, selectedEquipment)
+const { rooms, isLoading, error } = useRooms()
+
+const filteredRooms = computed(() => {
+  if (!rooms.value) return []
+
+  return rooms.value.filter(room => {
+    // Filtre par capacité
+    if (quantity.value && room.capacity < quantity.value) {
+      return false
+    }
+
+    // Filtre par équipement
+    if (
+      selectedEquipment.value &&
+      !room.equipements.some(e => e.name === selectedEquipment.value)
+    ) {
+      return false
+    }
+
+    return true
+  })
+})
+
+const rows = computed(() => {
+  return filteredRooms.value.map(room => ({
+    id: room.id.toString(),
+    label: `${room.name} (${room.capacity}p)`,
+  }))
+})
 
 // 🧩 MOCK : Les réservations existantes
 const reservations = [

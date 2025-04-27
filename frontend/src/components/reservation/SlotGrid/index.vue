@@ -12,7 +12,6 @@ const props = defineProps<{
   initialGroups?: Slot[][]
   allowCrossRowDrop?: boolean
 }>()
-const { rows, columns, initialGroups = [], allowCrossRowDrop = true } = props
 
 const emit = defineEmits<{
   (e: 'create', payload: { slots: Slot[] }): void
@@ -45,18 +44,23 @@ const {
   cancelMove,
   confirmDelete,
   cancelDelete,
-} = useSlotGrid({ columns, initialGroups, allowCrossRowDrop, emit })
+} = useSlotGrid({
+  columns: props.columns,
+  initialGroups: props.initialGroups || [],
+  allowCrossRowDrop: props.allowCrossRowDrop ?? true,
+  emit,
+})
 </script>
 
 <template>
   <div class="w-full select-none">
-    <div class="grid" :style="`grid-template-columns: 200px repeat(${columns.length}, 1fr)`">
-      <SlotGridHeader :columns="columns" />
+    <div class="grid" :style="`grid-template-columns: 200px repeat(${props.columns.length}, 1fr)`">
+      <SlotGridHeader :columns="props.columns" />
       <SlotGridRow
-        v-for="row in rows"
+        v-for="row in props.rows"
         :key="row.id"
         :row="row"
-        :columns="columns"
+        :columns="props.columns"
         :hovered-slots="hoveredSlots"
         :drop-target-slots="dropTargetSlots"
         :delete-candidate="deleteCandidate"
