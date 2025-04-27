@@ -5,6 +5,7 @@ import { useRooms } from '@/composables/useRooms'
 import { useReservations } from '@/composables/useReservations'
 import { useReservationStore } from '@/stores/reservation'
 import { toISODate } from '@/utils/date'
+import type { Slot } from '@/types/slotGrid'
 
 const { formattedRooms: rows, isLoading: isLoadingRooms, error: roomsError } = useRooms()
 const {
@@ -16,6 +17,35 @@ const {
   updateReservationMutation,
 } = useReservations()
 const store = useReservationStore()
+
+const createReservation = (slots: Slot[]) => {
+  const startHour = parseInt(slots[0].columnId.split(':')[0])
+  const endHour = parseInt(slots[slots.length - 1].columnId.split(':')[0]) + 1
+  createReservationMutation({
+    startDate: toISODate(store.selectedDate, startHour),
+    endDate: toISODate(store.selectedDate, endHour),
+    roomId: parseInt(slots[0].rowId),
+  })
+}
+
+const moveReservation = (from: Slot[], to: Slot[]) => {
+  if (!from[0].reservationId) return
+  updateReservationMutation({
+    reservationId: from[0].reservationId.toString(),
+    startDate: toISODate(store.selectedDate, parseInt(to[0].columnId.split(':')[0])),
+    endDate: toISODate(
+      store.selectedDate,
+      parseInt(to[to.length - 1].columnId.split(':')[0]) + 1
+    ),
+  })
+}
+
+const deleteReservation = (slots: Slot[]) => {
+  if (!slots[0].reservationId) return
+  deleteReservationMutation({
+    reservationId: slots[0].reservationId.toString(),
+  })
+}
 </script>
 
 <template>
@@ -31,37 +61,9 @@ const store = useReservationStore()
       :initial-groups="currentGroups"
       :allow-cross-row-drop="false"
       :selected-date="store.selectedDate"
-      @create="
-        ({ slots }) => {
-          const startHour = parseInt(slots[0].columnId.split(':')[0])
-          const endHour = parseInt(slots[slots.length - 1].columnId.split(':')[0]) + 1
-          createReservationMutation({
-            startDate: toISODate(store.selectedDate, startHour),
-            endDate: toISODate(store.selectedDate, endHour),
-            roomId: parseInt(slots[0].rowId),
-          })
-        }
-      "
-      @move="
-        ({ from, to }) => {
-          updateReservationMutation({
-            reservationId: from[0].reservationId.toString(),
-            startDate: toISODate(store.selectedDate, parseInt(to[0].columnId.split(':')[0])),
-            endDate: toISODate(
-              store.selectedDate,
-              parseInt(to[to.length - 1].columnId.split(':')[0]) + 1
-            ),
-          })
-        }
-      "
-      @delete="
-        ({ slots }) => {
-          if (!slots[0].reservationId) return
-          deleteReservationMutation({
-            reservationId: slots[0].reservationId.toString(),
-          })
-        }
-      "
+      @create="({ slots }) => createReservation(slots)"
+      @move="({ from, to }) => moveReservation(from, to)"
+      @delete="({ slots }) => deleteReservation(slots)"
     />
   </div>
 </template>
