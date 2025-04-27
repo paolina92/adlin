@@ -28,6 +28,8 @@ export const useSlotGrid = ({
   const dropTargetSlots = ref<Slot[]>([])
   const deleteCandidate = ref<Slot[]>([])
   const deletePopoverOpen = ref(false)
+  const createCandidate = ref<Slot[]>([])
+  const createDialogOpen = ref(false)
 
   const isSelected = (slot: Slot): boolean => {
     return selectedSlots.value.some(s => s.rowId === slot.rowId && s.columnId === slot.columnId)
@@ -103,10 +105,8 @@ export const useSlotGrid = ({
       resetState()
       return
     } else {
-      if (confirm('Create this slot group?')) {
-        selectedGroups.value.push(slots)
-        emit('create', { slots })
-      }
+      createCandidate.value = slots
+      createDialogOpen.value = true
     }
 
     resetState()
@@ -199,6 +199,18 @@ export const useSlotGrid = ({
     resetState()
   }
 
+  const cancelCreate = () => {
+    createCandidate.value = []
+    createDialogOpen.value = false
+  }
+
+  const confirmCreate = () => {
+    if (!createCandidate.value.length) return
+    selectedGroups.value.push(createCandidate.value)
+    emit('create', { slots: createCandidate.value })
+    cancelCreate()
+  }
+
   const cancelDelete = () => {
     deleteCandidate.value = []
     deletePopoverOpen.value = false
@@ -219,7 +231,9 @@ export const useSlotGrid = ({
   return {
     hoveredSlots,
     dropTargetSlots,
+    createCandidate,
     deleteCandidate,
+    createDialogOpen,
     deletePopoverOpen,
     isSelected,
     handleMouseDown,
@@ -233,5 +247,7 @@ export const useSlotGrid = ({
     hasHoveredNeighbor,
     confirmDelete,
     cancelDelete,
+    confirmCreate,
+    cancelCreate,
   }
 }

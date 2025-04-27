@@ -3,6 +3,7 @@ import { useSlotGrid } from '@/composables/useSlotGrid'
 import type { Row, TimeColumn, Slot } from '@/types/interfaces'
 import SlotGridHeader from '@/components/SlotGrid/SlotGridHeader'
 import SlotGridRow from '@/components/SlotGrid/SlotGridRow'
+import ConfirmCreateSlot from '@/components/SlotGrid/ConfirmCreateSlot'
 
 const props = defineProps<{
   rows: Row[]
@@ -23,6 +24,8 @@ const {
   dropTargetSlots,
   deleteCandidate,
   deletePopoverOpen,
+  createCandidate,
+  createDialogOpen,
   isSelected,
   handleMouseDown,
   handleMouseEnter,
@@ -35,6 +38,8 @@ const {
   hasHoveredNeighbor,
   confirmDelete,
   cancelDelete,
+  confirmCreate,
+  cancelCreate,
 } = useSlotGrid({ columns, initialGroups, allowCrossRowDrop, emit })
 </script>
 
@@ -66,4 +71,11 @@ const {
       />
     </div>
   </div>
+
+  <ConfirmCreateSlot
+    :create-dialog-open="createDialogOpen"
+    :create-candidate="createCandidate"
+    :cancel-create="cancelCreate"
+    :confirm-create="confirmCreate"
+  />
 </template>

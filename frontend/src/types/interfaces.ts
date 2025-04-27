@@ -34,6 +34,8 @@ declare module '@/types/interfaces' {
     deletePopoverOpen: Ref<boolean>
     hoveredSlots: Ref<Slot[]>
     dropTargetSlots: Ref<Slot[]>
+    createCandidate: Ref<Slot[]>
+    createDialogOpen: Ref<boolean>
     isSelected: (slot: Slot) => boolean
     handleMouseDown(slot: Slot): void
     handleMouseEnter(slot: Slot): void
@@ -46,5 +48,7 @@ declare module '@/types/interfaces' {
     hasHoveredNeighbor(slot: Slot, offset: number): boolean
     confirmDelete(): void
     cancelDelete(): void
+    confirmCreate(): void
+    cancelCreate(): void
   }
 }
