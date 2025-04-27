@@ -20,14 +20,6 @@ watch(selectedDate, newVal => {
     console.log('🗓️ Selected date:', newVal.toString())
   }
 })
-
-watch(quantity, newVal => {
-  console.log('👥 Quantity:', newVal)
-})
-
-watch(selectedEquipment, newVal => {
-  console.log('💻 Selected equipment:', newVal)
-})
 </script>
 
 <template>

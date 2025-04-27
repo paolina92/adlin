@@ -1,11 +1,16 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import type { Slot } from '@/types/interfaces'
 import { columns } from '@/constants/reservation'
 import SlotGrid from '@/components/reservation/SlotGrid'
 import { useRooms } from '@/composables/useRooms'
+import { useReservationStore } from '@/stores/reservation'
+import { storeToRefs } from 'pinia'
 
-const { formattedRooms: rows, isLoading, error } = useRooms()
+const store = useReservationStore()
+const { quantity, selectedEquipment } = storeToRefs(store)
+
+const { formattedRooms: rows, isLoading, error } = useRooms(quantity, selectedEquipment)
 
 // 🧩 MOCK : Les réservations existantes
 const reservations = [
@@ -32,9 +37,7 @@ const currentGroups = ref<Slot[][]>(initialGroups.value)
 <template>
   <div class="p-8">
     <div v-if="isLoading" class="text-center">Loading</div>
-    <div v-else-if="error" class="text-center text-black">
-      Error while loading rooms
-    </div>
+    <div v-else-if="error" class="text-center text-black">Error while loading rooms</div>
     <SlotGrid
       v-else
       :rows="rows"

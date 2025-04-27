@@ -1,16 +1,25 @@
 import { useQuery } from '@tanstack/vue-query'
-import { computed } from 'vue'
+import { computed, unref, type Ref } from 'vue'
 import type { UseRoomsReturn } from '@/types/interfaces'
-import { getRoom } from '@/api/room'
+import { getRooms } from '@/api/room'
 
-export function useRooms(): UseRoomsReturn {
+export function useRooms(
+  capacityRef: number | Ref<number>,
+  equipmentRef: string | undefined | Ref<string | undefined>
+): UseRoomsReturn {
+  const queryKey = computed(() => ['rooms', unref(capacityRef), unref(equipmentRef) ?? ''])
+
   const {
     data: rooms,
     isLoading,
     error,
   } = useQuery({
-    queryKey: ['rooms'],
-    queryFn: getRoom,
+    queryKey,
+    queryFn: () =>
+      getRooms({
+        capacity: unref(capacityRef),
+        equipment: unref(equipmentRef),
+      }),
     staleTime: Infinity,
   })
 
