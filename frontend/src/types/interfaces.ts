@@ -41,6 +41,8 @@ declare module '@/types/interfaces' {
 
   export interface UseRoomsReturn {
     rooms: Ref<Room[] | undefined>
+    filteredRooms: Ref<Room[]>
+    formattedRooms: Ref<Row[]>
     isLoading: Ref<boolean>
     error: Ref<Error | null>
   }
