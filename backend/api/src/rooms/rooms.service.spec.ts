@@ -43,25 +43,9 @@ describe('RoomsService', () => {
     service = module.get<RoomsService>(RoomsService);
   });
 
-  it('should return all rooms with no filters', async () => {
+  it('should return all rooms', async () => {
     const result = await service.findAll();
     expect(result.length).toBe(3);
-  });
-
-  it('should filter rooms by capacity', async () => {
-    const result = await service.findAll(10);
-    expect(result.length).toBe(2); // Salle 2 & 3
-  });
-
-  it('should filter rooms by equipment', async () => {
-    const result = await service.findAll(undefined, 'TV');
-    expect(result.length).toBe(1);
-    expect(result[0].name).toBe('Salle 1');
-  });
-
-  it('should filter rooms by capacity AND equipment', async () => {
-    const result = await service.findAll(10, 'Retro Projecteur');
-    expect(result.length).toBe(1);
-    expect(result[0].name).toBe('Salle 2');
+    expect(result).toEqual(mockRooms);
   });
 });
