@@ -5,11 +5,8 @@ import { PopoverArrow, PopoverClose, PopoverContent, PopoverPortal, PopoverRoot,
 
 <template>
   <PopoverRoot>
-    <PopoverTrigger
-      class="rounded-full w-[35px] h-[35px] inline-flex items-center justify-center text-grass11 bg-white shadow-sm border hover:bg-white/80 cursor-default focus:shadow-[0_0_0_2px]  focus:shadow-black dark:focus:shadow-green8 focus:outline-none "
-      aria-label="Update dimensions"
-    >
-      <Icon icon="radix-icons:mixer-horizontal" />
+    <PopoverTrigger>
+      <!-- trigger element -->
     </PopoverTrigger>
     <PopoverPortal>
       <PopoverContent
