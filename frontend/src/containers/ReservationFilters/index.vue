@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useReservationStore } from '@/stores/reservation'
 import { CalendarDate } from '@internationalized/date'
@@ -20,12 +19,6 @@ const today = new CalendarDate(
 const isDateUnavailable = (date: CalendarDate) => {
   return date.compare(today) < 0
 }
-
-watch(selectedDate, newVal => {
-  if (newVal) {
-    console.log('🗓️ Selected date:', newVal.toString())
-  }
-})
 </script>
 
 <template>
