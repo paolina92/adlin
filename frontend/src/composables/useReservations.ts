@@ -6,29 +6,34 @@ import type { Slot, ApiReservation } from '@/types/interfaces'
 
 export const useReservations = () => {
   const store = useReservationStore()
-  const startDate = new Date(
-    store.selectedDate.year,
-    store.selectedDate.month - 1,
-    store.selectedDate.day,
-    0,
-    0,
-    0
-  )
-  const endDate = new Date(
-    store.selectedDate.year,
-    store.selectedDate.month - 1,
-    store.selectedDate.day,
-    23,
-    59,
-    59
-  )
-  const startDateISO = startDate
-    .toLocaleString('sv', { timeZone: 'Europe/Paris' })
-    .replace(' ', 'T')
-  const endDateISO = endDate.toLocaleString('sv', { timeZone: 'Europe/Paris' }).replace(' ', 'T')
+
+  const startDateISO = computed(() => {
+    const startDate = new Date(
+      store.selectedDate.year,
+      store.selectedDate.month - 1,
+      store.selectedDate.day,
+      0,
+      0,
+      0
+    )
+    return startDate.toLocaleString('sv', { timeZone: 'Europe/Paris' }).replace(' ', 'T')
+  })
+
+  const endDateISO = computed(() => {
+    const endDate = new Date(
+      store.selectedDate.year,
+      store.selectedDate.month - 1,
+      store.selectedDate.day,
+      23,
+      59,
+      59
+    )
+    return endDate.toLocaleString('sv', { timeZone: 'Europe/Paris' }).replace(' ', 'T')
+  })
+
   const { data, isLoading, error } = useQuery({
     queryKey: ['reservations', startDateISO, endDateISO],
-    queryFn: () => getReservations({ startDate: startDateISO, endDate: endDateISO }),
+    queryFn: () => getReservations({ startDate: startDateISO.value, endDate: endDateISO.value }),
   })
 
   const reservations = computed(() => {
