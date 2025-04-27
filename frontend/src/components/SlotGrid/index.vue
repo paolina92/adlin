@@ -4,6 +4,8 @@ import type { Row, TimeColumn, Slot } from '@/types/interfaces'
 import SlotGridHeader from '@/components/SlotGrid/SlotGridHeader'
 import SlotGridRow from '@/components/SlotGrid/SlotGridRow'
 import ConfirmCreateSlot from '@/components/SlotGrid/ConfirmCreateSlot'
+import Dialog from '@/components/Dialog'
+import BaseButton from '@/components/BaseButton'
 
 const props = defineProps<{
   rows: Row[]
@@ -22,10 +24,12 @@ const emit = defineEmits<{
 const {
   hoveredSlots,
   dropTargetSlots,
-  deleteCandidate,
-  deletePopoverOpen,
   createCandidate,
   createDialogOpen,
+  moveFrom,
+  moveDialogOpen,
+  deleteCandidate,
+  deletePopoverOpen,
   isSelected,
   handleMouseDown,
   handleMouseEnter,
@@ -36,10 +40,12 @@ const {
   handleDrop,
   hasNeighbor,
   hasHoveredNeighbor,
-  confirmDelete,
-  cancelDelete,
   confirmCreate,
   cancelCreate,
+  confirmMove,
+  cancelMove,
+  confirmDelete,
+  cancelDelete,
 } = useSlotGrid({ columns, initialGroups, allowCrossRowDrop, emit })
 </script>
 
@@ -78,4 +84,15 @@ const {
     :cancel-create="cancelCreate"
     :confirm-create="confirmCreate"
   />
+
+  <Dialog
+    v-model:open="moveDialogOpen"
+    title="Déplacer la réservation"
+    :description="`Déplacer le groupe de ${moveFrom.length} créneau${moveFrom.length > 1 ? 'x' : ''} ?`"
+  >
+    <div class="flex justify-end space-x-2">
+      <BaseButton label="Annuler" @click="cancelMove" />
+      <BaseButton label="Déplacer" @click="confirmMove" />
+    </div>
+  </Dialog>
 </template>

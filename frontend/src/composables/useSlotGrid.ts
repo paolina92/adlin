@@ -30,6 +30,9 @@ export const useSlotGrid = ({
   const deletePopoverOpen = ref(false)
   const createCandidate = ref<Slot[]>([])
   const createDialogOpen = ref(false)
+  const moveFrom = ref<Slot[]>([])
+  const moveTo = ref<Slot[]>([])
+  const moveDialogOpen = ref(false)
 
   const isSelected = (slot: Slot): boolean => {
     return selectedSlots.value.some(s => s.rowId === slot.rowId && s.columnId === slot.columnId)
@@ -191,11 +194,9 @@ export const useSlotGrid = ({
       resetState()
       return
     }
-    if (confirm('Move this slot group?')) {
-      selectedGroups.value = selectedGroups.value.filter(g => g !== originalGroup)
-      selectedGroups.value.push(newSlots)
-      emit('move', { from: originalGroup, to: newSlots })
-    }
+    moveFrom.value = originalGroup
+    moveTo.value = newSlots
+    moveDialogOpen.value = true
     resetState()
   }
 
@@ -209,6 +210,20 @@ export const useSlotGrid = ({
     selectedGroups.value.push(createCandidate.value)
     emit('create', { slots: createCandidate.value })
     cancelCreate()
+  }
+
+  const cancelMove = () => {
+    moveFrom.value = []
+    moveTo.value = []
+    moveDialogOpen.value = false
+  }
+
+  const confirmMove = () => {
+    if (!moveFrom.value.length) return
+    selectedGroups.value = selectedGroups.value.filter(g => g !== moveFrom.value)
+    selectedGroups.value.push(moveTo.value)
+    emit('move', { from: moveFrom.value, to: moveTo.value })
+    cancelMove()
   }
 
   const cancelDelete = () => {
@@ -232,6 +247,8 @@ export const useSlotGrid = ({
     hoveredSlots,
     dropTargetSlots,
     createCandidate,
+    moveFrom,
+    moveDialogOpen,
     deleteCandidate,
     createDialogOpen,
     deletePopoverOpen,
@@ -245,9 +262,11 @@ export const useSlotGrid = ({
     handleDrop,
     hasNeighbor,
     hasHoveredNeighbor,
-    confirmDelete,
-    cancelDelete,
     confirmCreate,
     cancelCreate,
+    confirmMove,
+    cancelMove,
+    confirmDelete,
+    cancelDelete,
   }
 }

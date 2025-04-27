@@ -36,6 +36,8 @@ declare module '@/types/interfaces' {
     dropTargetSlots: Ref<Slot[]>
     createCandidate: Ref<Slot[]>
     createDialogOpen: Ref<boolean>
+    moveFrom: Ref<Slot[]>
+    moveDialogOpen: Ref<boolean>
     isSelected: (slot: Slot) => boolean
     handleMouseDown(slot: Slot): void
     handleMouseEnter(slot: Slot): void
@@ -50,5 +52,7 @@ declare module '@/types/interfaces' {
     cancelDelete(): void
     confirmCreate(): void
     cancelCreate(): void
+    confirmMove(): void
+    cancelMove(): void
   }
 }
