@@ -32,3 +32,11 @@ export const createReservation = async ({
     throw error
   }
 }
+
+export const deleteReservation = async ({
+  reservationId,
+}: {
+  reservationId: string
+}): Promise<void> => {
+  await ApiService.delete(`reservations/${reservationId}`)
+}

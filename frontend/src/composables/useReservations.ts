@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
-import { createReservation, getReservations } from '@/api/reservation'
+import { createReservation, deleteReservation, getReservations } from '@/api/reservation'
 import { useReservationStore } from '@/stores/reservation'
 import { computed, ref, watch } from 'vue'
 import type { Slot, ApiReservation } from '@/types/interfaces'
-import { getStartOfDay, getEndOfDay, fromISODate } from '@/utils/date'
+import { getStartOfDay, getEndOfDay } from '@/utils/date'
 
 export const useReservations = () => {
   const store = useReservationStore()
@@ -28,7 +28,7 @@ export const useReservations = () => {
     const start = startDate.getUTCHours()
     const end = endDate.getUTCHours()
     for (let h = start; h < end; h++) {
-      arr.push({ rowId: res.roomId.toString(), columnId: `${h}:00` })
+      arr.push({ rowId: res.roomId.toString(), columnId: `${h}:00`, reservationId: res.id })
     }
     return arr
   }
@@ -52,7 +52,15 @@ export const useReservations = () => {
   const { mutate: createReservationMutation } = useMutation({
     mutationFn: createReservation,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reservations', { startDateISO, endDateISO }] })
+      queryClient.invalidateQueries({ queryKey: ['reservations'] })
+    },
+  })
+
+  const { mutate: deleteReservationMutation } = useMutation({
+    mutationFn: ({ reservationId }: { reservationId: string }) =>
+      deleteReservation({ reservationId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['reservations'] })
     },
   })
 
@@ -63,5 +71,6 @@ export const useReservations = () => {
     currentGroups,
     slotsFor,
     createReservationMutation,
+    deleteReservationMutation,
   }
 }

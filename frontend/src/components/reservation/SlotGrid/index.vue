@@ -55,7 +55,7 @@ const {
 
 watch(
   () => props.initialGroups,
-  (newGroups) => {
+  newGroups => {
     if (newGroups) {
       updateGroups(newGroups)
     }

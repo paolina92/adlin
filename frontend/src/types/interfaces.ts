@@ -4,6 +4,7 @@ declare module '@/types/interfaces' {
   export interface Slot {
     rowId: string
     columnId: string
+    reservationId?: number
   }
 
   export interface TimeColumn {
