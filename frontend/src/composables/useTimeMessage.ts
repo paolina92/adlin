@@ -36,12 +36,10 @@ export const useTimeMessage = () => {
   const getMessage = (
     slots: Slot[],
     columns: TimeColumn[],
-    getMessageFn: (
-      startColumn: TimeColumn,
-      endTime: string | undefined,
-      ...args: unknown[]
-    ) => string,
-    ...args: unknown[]
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    getMessageFn: (startColumn: TimeColumn, endTime: string | undefined, ...args: any[]) => string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ...args: any[]
   ) => {
     const { startColumn, endColumn } = getColumns(slots, columns)
     if (!startColumn || !endColumn) return ''
