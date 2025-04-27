@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Row, TimeColumn, Slot } from '@/types/interfaces'
-import { PopoverRoot, PopoverTrigger, PopoverPortal, PopoverContent, PopoverArrow } from 'reka-ui'
+import Popover from '@/components/Popover'
 import BaseButton from '@/components/BaseButton'
 
 const props = defineProps<{
@@ -36,24 +36,21 @@ const isFirstOfDeleteGroup = (colId: string) =>
 <template>
   <div class="border border-gray p-2 font-medium bg-white">{{ row.label }}</div>
   <template v-for="col in columns" :key="`${row.id}-${col.id}`">
-    <PopoverRoot
+    <!-- si on demande la suppression et que c'est la première case -->
+    <Popover
       v-if="deletePopoverOpen && isFirstOfDeleteGroup(col.id)"
       :open="deletePopoverOpen"
-      @open-change="open => !open && cancelDelete()"
+      @update:open="val => !val && cancelDelete()"
     >
-      <PopoverTrigger as-child>
-        <!-- **LE MÊME DIV** qu’en-dessous, avec toutes les classes + events -->
+      <!-- trigger : la case cliquée -->
+      <template #trigger>
         <div
           :data-slot="`${row.id}-${col.id}`"
-          class="border border-gray p-2 text-center cursor-pointer transition-colors duration-150"
+          class="h-full border border-gray p-2 text-center cursor-pointer transition-colors duration-150"
           :class="{
-            // réservation existante
             'bg-brand/80': isSelected({ rowId: row.id, columnId: col.id }),
-            // en train de créer (hover)
             'bg-brand/70': hoveredSlots.some(s => s.rowId === row.id && s.columnId === col.id),
-            // drop target
             'bg-gray': dropTargetSlots.some(s => s.rowId === row.id && s.columnId === col.id),
-            // fusions de bordures gauche/droite
             'border-l-0':
               (isSelected({ rowId: row.id, columnId: col.id }) &&
                 hasNeighbor({ rowId: row.id, columnId: col.id }, -1)) ||
@@ -78,21 +75,19 @@ const isFirstOfDeleteGroup = (colId: string) =>
           @dragenter="() => handleDragEnter({ rowId: row.id, columnId: col.id })"
           @drop="() => handleDrop({ rowId: row.id, columnId: col.id })"
         />
-      </PopoverTrigger>
+      </template>
 
-      <PopoverPortal>
-        <PopoverContent side="bottom" :side-offset="5" class="w-56 p-4 bg-white rounded shadow">
-          <p class="mb-4">Voulez-vous supprimer cette réservation ?</p>
-          <div class="flex justify-end space-x-2">
-            <BaseButton label="Annuler" @click="cancelDelete" />
-            <BaseButton label="Confirmer" @click="confirmDelete" />
-          </div>
-          <PopoverArrow class="fill-white stroke-gray" />
-        </PopoverContent>
-      </PopoverPortal>
-    </PopoverRoot>
+      <!-- contenu du popover -->
+      <div class="flex flex-col gap-4">
+        <p>Voulez-vous supprimer cette réservation ?</p>
+        <div class="flex justify-end space-x-2">
+          <BaseButton label="Annuler" @click="cancelDelete" />
+          <BaseButton label="Confirmer" @click="confirmDelete" />
+        </div>
+      </div>
+    </Popover>
 
-    <!-- et ici, exactement le même DIV si on n’est pas en popover -->
+    <!-- sinon on affiche la case normalement -->
     <div
       v-else
       :data-slot="`${row.id}-${col.id}`"

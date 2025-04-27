@@ -1,12 +1,6 @@
 <script setup lang="ts">
 import { defineProps, defineEmits } from 'vue'
-import {
-  PopoverRoot,
-  PopoverTrigger,
-  PopoverPortal,
-  PopoverContent,
-  PopoverArrow,
-} from 'reka-ui'
+import { PopoverRoot, PopoverTrigger, PopoverPortal, PopoverContent, PopoverArrow } from 'reka-ui'
 
 const props = defineProps<{
   open?: boolean
