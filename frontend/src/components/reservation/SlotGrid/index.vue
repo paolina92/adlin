@@ -6,12 +6,14 @@ import SlotGridRow from '@/components/reservation/SlotGridRow'
 import ConfirmCreateSlot from '@/components/reservation/ConfirmCreateSlot'
 import ConfirmMoveSlot from '@/components/reservation/ConfirmMoveSlot'
 import { watch } from 'vue'
+import { CalendarDate } from '@internationalized/date'
 
 const props = defineProps<{
   rows: Row[]
   columns: TimeColumn[]
   initialGroups?: Slot[][]
   allowCrossRowDrop?: boolean
+  selectedDate: CalendarDate
 }>()
 
 const emit = defineEmits<{
@@ -98,12 +100,16 @@ watch(
     :create-candidate="createCandidate"
     :cancel-create="cancelCreate"
     :confirm-create="confirmCreate"
+    :columns="props.columns"
+    :selected-date="props.selectedDate"
   />
 
   <ConfirmMoveSlot
     :move-dialog-open="moveDialogOpen"
     :move-from="moveFrom"
+    :drop-target-slots="dropTargetSlots"
     :cancel-move="cancelMove"
     :confirm-move="confirmMove"
+    :columns="props.columns"
   />
 </template>

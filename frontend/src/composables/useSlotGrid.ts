@@ -201,7 +201,10 @@ export const useSlotGrid = ({
     moveFrom.value = originalGroup
     moveTo.value = newSlots
     moveDialogOpen.value = true
-    resetState()
+    selectionStart.value = null
+    hoveredSlots.value = []
+    draggingSlots.value = null
+    dragOrigin.value = null
   }
 
   const cancelCreate = () => {
@@ -220,6 +223,7 @@ export const useSlotGrid = ({
     moveFrom.value = []
     moveTo.value = []
     moveDialogOpen.value = false
+    dropTargetSlots.value = []
   }
 
   const confirmMove = () => {

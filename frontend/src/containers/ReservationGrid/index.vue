@@ -30,6 +30,7 @@ const store = useReservationStore()
       :columns="columns"
       :initial-groups="currentGroups"
       :allow-cross-row-drop="false"
+      :selected-date="store.selectedDate"
       @create="
         ({ slots }) => {
           const startHour = parseInt(slots[0].columnId.split(':')[0])

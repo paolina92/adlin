@@ -12,10 +12,10 @@ const confirmDelete = () => emit('confirm')
 
 <template>
   <div class="flex flex-col gap-4 p-4">
-    <p>Voulez-vous supprimer cette réservation ?</p>
+    <p>Are you sure you want to delete this reservation?</p>
     <div class="flex justify-end space-x-2">
-      <BaseButton label="Annuler" @click="cancelDelete" />
-      <BaseButton label="Confirmer" @click="confirmDelete" />
+      <BaseButton label="Cancel" @click="cancelDelete" />
+      <BaseButton label="Confirm" @click="confirmDelete" />
     </div>
   </div>
 </template>
