@@ -204,8 +204,8 @@ describe('useReservations', () => {
     const reservation: Reservation = {
       id: 1,
       roomId: 1,
-      startDate: '2024-03-20T09:30:00Z', // Test avec des minutes
-      endDate: '2024-03-20T11:45:00Z', // Test avec des minutes
+      startDate: '2024-03-20T09:30:00Z', // Test with minutes
+      endDate: '2024-03-20T11:45:00Z', // Test with minutes
     }
 
     const slots = slotsFor(reservation)
