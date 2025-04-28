@@ -1,3 +1,7 @@
+<!--
+  @component ConfirmMoveSlot
+  @description A component that displays a message for confirming a move of a slot. Can be pass to a dialog component.
+-->
 <script setup lang="ts">
 import type { Slot, TimeColumn } from '@/types/slotGrid'
 import Dialog from '@/components/shared/Dialog'

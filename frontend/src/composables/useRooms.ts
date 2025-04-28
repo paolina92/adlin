@@ -5,10 +5,16 @@ import { getRooms } from '@/api/room'
 import { useReservationStore } from '@/stores/reservation'
 import { storeToRefs } from 'pinia'
 
+/**
+ * Composable for managing rooms.
+ *
+ * @returns {UseRoomsReturn} The rooms data and related functions.
+ */
 export function useRooms(): UseRoomsReturn {
   const store = useReservationStore()
   const { quantity, selectedEquipment } = storeToRefs(store)
 
+  // queries
   const {
     data: rooms,
     isLoading,
@@ -19,6 +25,7 @@ export function useRooms(): UseRoomsReturn {
     staleTime: Infinity,
   })
 
+  // filters
   const filteredRooms = computed(() => {
     if (!rooms.value) return []
 
@@ -37,6 +44,7 @@ export function useRooms(): UseRoomsReturn {
     })
   })
 
+  // format
   const formattedRooms = computed(() => {
     return filteredRooms.value.map(room => ({
       id: room.id.toString(),

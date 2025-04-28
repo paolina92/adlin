@@ -1,3 +1,7 @@
+<!--
+  @component SlotGridCell
+  @description A component that displays a cell for a slot in the slot grid.
+-->
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Slot } from '@/types/slotGrid'

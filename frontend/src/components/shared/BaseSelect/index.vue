@@ -62,7 +62,6 @@ function clearSelection() {
         </SelectPortal>
       </SelectRoot>
 
-      <!-- Clear Button -->
       <button
         v-if="props.modelValue"
         class="absolute -right-12 text-sm text-black hover:underline focus:outline-none"

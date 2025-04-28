@@ -17,13 +17,13 @@ const quantity = computed({
   set: val => emit('update:modelValue', val),
 })
 
-function increment() {
+const increment = () => {
   if (props.max === undefined || quantity.value < props.max) {
     quantity.value += 1
   }
 }
 
-function decrement() {
+const decrement = () => {
   if (quantity.value > (props.min ?? 0)) {
     quantity.value -= 1
   }

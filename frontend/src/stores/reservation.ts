@@ -1,8 +1,14 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { CalendarDate } from '@internationalized/date'
+import type { UseReservationStoreReturn } from '@/types/reservation'
 
-export const useReservationStore = defineStore('reservation', () => {
+/**
+ * Store for managing reservation-related data.
+ *
+ * @returns {UseReservationStoreReturn} The reservation store.
+ */
+export const useReservationStore = defineStore('reservation', (): UseReservationStoreReturn => {
   const today = new Date()
   const todayCalendarDate = new CalendarDate(
     today.getFullYear(),

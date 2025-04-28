@@ -3,6 +3,12 @@ import type { Slot, TimeColumn, UseSlotGridReturn } from '@/types/slotGrid'
 
 /**
  * Composable extracting selection, hover and drag-and-drop logic for SlotGrid.
+ *
+ * @param columns - The columns of the SlotGrid.
+ * @param initialGroups - The initial groups of the SlotGrid.
+ * @param allowCrossRowDrop - Whether to allow cross-row drop.
+ * @param emit - The emit function.
+ * @returns {UseSlotGridReturn} The slot grid data and related functions.
  */
 export const useSlotGrid = ({
   columns,
@@ -19,6 +25,7 @@ export const useSlotGrid = ({
     (e: 'delete', payload: { slots: Slot[] }): void
   }
 }): UseSlotGridReturn => {
+  // states
   const selectedGroups = ref<Slot[][]>([...initialGroups])
   const selectedSlots = computed(() => selectedGroups.value.flat())
   const selectionStart = ref<Slot | null>(null)
@@ -34,6 +41,7 @@ export const useSlotGrid = ({
   const moveTo = ref<Slot[]>([])
   const moveDialogOpen = ref(false)
 
+  // utils
   const updateGroups = (groups: Slot[][]) => {
     selectedGroups.value = [...groups]
   }
@@ -80,6 +88,15 @@ export const useSlotGrid = ({
     dropTargetSlots.value = []
   }
 
+  const hasOverlap = (slots: Slot[]): boolean => {
+    return slots.some(slot =>
+      selectedSlots.value.some(
+        existingSlot => existingSlot.rowId === slot.rowId && existingSlot.columnId === slot.columnId
+      )
+    )
+  }
+
+  // handlers
   const handleMouseDown = (slot: Slot) => {
     selectionStart.value = slot
     hoveredSlots.value = [slot]
@@ -88,14 +105,6 @@ export const useSlotGrid = ({
   const handleMouseEnter = (slot: Slot) => {
     if (!selectionStart.value) return
     hoveredSlots.value = rangeSlots(selectionStart.value, slot)
-  }
-
-  const hasOverlap = (slots: Slot[]): boolean => {
-    return slots.some(slot =>
-      selectedSlots.value.some(
-        existingSlot => existingSlot.rowId === slot.rowId && existingSlot.columnId === slot.columnId
-      )
-    )
   }
 
   const handleMouseUp = (slot: Slot) => {
@@ -219,6 +228,7 @@ export const useSlotGrid = ({
     dragOrigin.value = null
   }
 
+  // confirm handlers
   const cancelCreate = () => {
     createCandidate.value = []
     createDialogOpen.value = false

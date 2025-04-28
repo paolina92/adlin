@@ -11,22 +11,33 @@ import type { Slot } from '@/types/slotGrid'
 import type { Reservation, UseReservationsReturn } from '@/types/reservation'
 import { getStartOfDay, getEndOfDay } from '@/utils/date'
 
+/**
+ * Composable for managing reservations.
+ *
+ * @returns {UseReservationsReturn} The reservations data and related functions.
+ */
 export const useReservations = (): UseReservationsReturn => {
+  // store
   const store = useReservationStore()
 
+  // computed
   const startDateISO = computed(() => getStartOfDay(store.selectedDate))
   const endDateISO = computed(() => getEndOfDay(store.selectedDate))
+  const reservations = computed(() => {
+    return data.value || []
+  })
+  const initialGroups = computed(() => {
+    return reservations.value.map(slotsFor)
+  })
 
+  // queries
   const { data, isLoading, error } = useQuery({
     queryKey: ['reservations', startDateISO, endDateISO],
     queryFn: () => getReservations({ startDate: startDateISO.value, endDate: endDateISO.value }),
     staleTime: Infinity,
   })
 
-  const reservations = computed(() => {
-    return data.value || []
-  })
-
+  // utils
   const slotsFor = (res: Reservation): Slot[] => {
     const arr: Slot[] = []
     const startDate = new Date(res.startDate)
@@ -39,10 +50,7 @@ export const useReservations = (): UseReservationsReturn => {
     return arr
   }
 
-  const initialGroups = computed(() => {
-    return reservations.value.map(slotsFor)
-  })
-
+  // states
   const currentGroups = ref<Slot[][]>(initialGroups.value)
 
   watch(
@@ -53,6 +61,7 @@ export const useReservations = (): UseReservationsReturn => {
     { immediate: true }
   )
 
+  // mutations
   const queryClient = useQueryClient()
 
   const { mutateAsync: createReservationMutation } = useMutation({

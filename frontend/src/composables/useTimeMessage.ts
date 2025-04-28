@@ -1,8 +1,14 @@
 import type { TimeColumn, Slot } from '@/types/slotGrid'
 import { monthNames } from '@/constants/date'
 import { CalendarDate } from '@internationalized/date'
+import type { UseTimeMessageReturn } from '@/types/slotGrid'
 
-export const useTimeMessage = () => {
+/**
+ * Composable for generating time messages.
+ *
+ * @returns {UseTimeMessageReturn} The time message functions.
+ */
+export const useTimeMessage = (): UseTimeMessageReturn => {
   const getColumns = (slots: Slot[], columns: TimeColumn[]) => {
     if (slots.length === 0) return { startColumn: undefined, endColumn: undefined }
 

@@ -36,7 +36,6 @@ const emit = defineEmits<{
     class="mt-6 rounded-xl bg-white p-4 shadow-sm border"
     @update:model-value="emit('update:modelValue', $event)"
   >
-    <!-- Header -->
     <CalendarHeader class="flex items-center justify-between">
       <CalendarPrev
         class="inline-flex items-center cursor-pointer text-black justify-center rounded-md bg-transparent w-7 h-7 hover:bg-white/50 active:scale-98 active:transition-all focus:shadow-[0_0_0_2px] focus:shadow-black"
@@ -53,7 +52,6 @@ const emit = defineEmits<{
       </CalendarNext>
     </CalendarHeader>
 
-    <!-- Grid -->
     <div class="flex flex-col space-y-4 pt-4 sm:flex-row sm:space-x-4 sm:space-y-0">
       <CalendarGrid
         v-for="month in grid"

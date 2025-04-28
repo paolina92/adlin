@@ -2,6 +2,7 @@ import type { Ref } from 'vue'
 import type { MutateFunction } from '@tanstack/vue-query'
 import type { Room } from '@/types/room'
 import type { Slot } from '@/types/slotGrid'
+import type { AnyCalendarDate, CalendarDate } from '@internationalized/date'
 
 export interface Reservation {
   id: number
@@ -30,4 +31,13 @@ export interface UseReservationsReturn {
     { reservationId: string; startDate: string; endDate: string },
     unknown
   >
+}
+
+export interface UseReservationStoreReturn {
+  selectedDate: Ref<AnyCalendarDate>
+  quantity: Ref<number>
+  selectedEquipment: Ref<string | undefined>
+  setDate: (date: CalendarDate) => void
+  setQuantity: (quantity: number) => void
+  setEquipment: (equipment: string | undefined) => void
 }

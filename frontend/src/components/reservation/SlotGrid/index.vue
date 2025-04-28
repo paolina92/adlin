@@ -1,3 +1,7 @@
+<!--
+  @component SlotGrid
+  @description A component that displays a grid of slots for a reservation
+-->
 <script setup lang="ts">
 import { useSlotGrid } from '@/composables/useSlotGrid'
 import type { Row, TimeColumn, Slot } from '@/types/slotGrid'

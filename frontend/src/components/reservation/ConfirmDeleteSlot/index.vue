@@ -1,3 +1,7 @@
+<!--
+  @component ConfirmDeleteSlot
+  @description A component that displays a message for confirming a delete of a slot. Can be pass to a popover component.
+-->
 <script setup lang="ts">
 import BaseButton from '@/components/shared/BaseButton'
 

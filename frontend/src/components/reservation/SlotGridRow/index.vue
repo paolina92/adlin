@@ -1,3 +1,7 @@
+<!--
+  @component SlotGridRow
+  @description A component that displays a row of slots for a reservation.
+-->
 <script setup lang="ts">
 import type { Row, TimeColumn, Slot } from '@/types/slotGrid'
 import Popover from '@/components/shared/Popover'

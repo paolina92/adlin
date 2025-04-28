@@ -1,3 +1,7 @@
+<!--
+  @component SlotGridHeader
+  @description A component that displays the header for the slot grid.
+-->
 <script setup lang="ts">
 import type { TimeColumn } from '@/types/slotGrid'
 
