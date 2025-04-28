@@ -15,9 +15,9 @@ adlin/
 
 This project uses pnpm
 
-If you don’t have it yet, install it globally:
+If you don't have it yet, install it globally:
 
-```
+```bash
 npm install -g pnpm
 ```
 
@@ -32,31 +32,31 @@ npm install -g pnpm
 
 ### 📦 Setup
 
-```
+```bash
 cd backend/api
 ```
 
 1. Install dependencies
 
-```
+```bash
 pnpm install
 ```
 
 2. Generate the database
 
-```
+```bash
 npx prisma migrate dev --name init
 ```
 
 3. Seed with sample data
 
-```
+```bash
 npx prisma db seed
 ```
 
 4. Start the server
 
-```
+```bash
 pnpm run start:dev
 ```
 
@@ -69,7 +69,7 @@ Swagger includes all endpoints with query params, payload examples, and error ca
 
 ### 🧪 Run Tests
 
-```
+```bash
 cd backend/api
 pnpm run test
 ```
@@ -83,7 +83,56 @@ pnpm run test
 - Vite – Lightning-fast build tool with instant HMR
 - Pinia – Intuitive and type-safe store for state management
 - Vue Query – Powerful async state manager (data fetching, caching, mutations)
-- Tailwind CSS v4 – Utility-first CSS framework for rapid UI development-
+- Tailwind CSS v4 – Utility-first CSS framework for rapid UI development
+
+### 📦 Installation
+
+```bash
+cd frontend
+pnpm install
+```
+
+### 🚀 Development Server
+
+```bash
+pnpm dev
+```
+
+The application will be available at http://localhost:5173
+
+### 🧪 Testing
+
+```bash
+# Run tests in watch mode
+pnpm test
+
+# Run tests with UI interface
+pnpm test:ui
+```
+
+### 📝 Linting and Formatting
+
+```bash
+# Run linter
+pnpm lint
+
+# Format code
+pnpm format
+```
+
+### 🏗️ Production Build
+
+```bash
+pnpm build
+```
+
+Production files will be generated in the `dist` folder.
+
+To preview the production build:
+
+```bash
+pnpm preview
+```
 
 ## 🤝 Author
 
