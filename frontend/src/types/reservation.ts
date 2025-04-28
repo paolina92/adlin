@@ -37,7 +37,9 @@ export interface UseReservationStoreReturn {
   selectedDate: Ref<AnyCalendarDate>
   quantity: Ref<number>
   selectedEquipment: Ref<string | undefined>
+  search: Ref<string>
   setDate: (date: CalendarDate) => void
   setQuantity: (quantity: number) => void
   setEquipment: (equipment: string | undefined) => void
+  setSearch: (search: string) => void
 }

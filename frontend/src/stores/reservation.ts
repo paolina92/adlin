@@ -18,6 +18,7 @@ export const useReservationStore = defineStore('reservation', (): UseReservation
   const selectedDate = ref<CalendarDate>(todayCalendarDate)
   const quantity = ref<number>(1)
   const selectedEquipment = ref<string | undefined>(undefined)
+  const search = ref<string>('')
 
   const setDate = (date: CalendarDate) => {
     selectedDate.value = date
@@ -31,12 +32,18 @@ export const useReservationStore = defineStore('reservation', (): UseReservation
     selectedEquipment.value = e
   }
 
+  const setSearch = (s: string) => {
+    search.value = s
+  }
+
   return {
     selectedDate,
     quantity,
     selectedEquipment,
+    search,
     setDate,
     setQuantity,
     setEquipment,
+    setSearch,
   }
 })

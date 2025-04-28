@@ -12,7 +12,7 @@ import { storeToRefs } from 'pinia'
  */
 export function useRooms(): UseRoomsReturn {
   const store = useReservationStore()
-  const { quantity, selectedEquipment } = storeToRefs(store)
+  const { quantity, selectedEquipment, search } = storeToRefs(store)
 
   // queries
   const {
@@ -37,6 +37,9 @@ export function useRooms(): UseRoomsReturn {
         selectedEquipment.value &&
         !room.equipements.some(e => e.name === selectedEquipment.value)
       ) {
+        return false
+      }
+      if (search.value && !room.name.toLowerCase().includes(search.value.toLowerCase())) {
         return false
       }
 
