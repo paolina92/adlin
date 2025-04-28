@@ -22,6 +22,7 @@ vi.mock('pinia', () => ({
   storeToRefs: (store: any) => ({
     quantity: ref(store.quantity),
     selectedEquipment: ref(store.selectedEquipment),
+    search: ref(store.search),
   }),
 }))
 
@@ -29,13 +30,13 @@ describe('useRooms', () => {
   const mockRooms = [
     {
       id: 1,
-      name: 'Salle A',
+      name: 'Salle de réunion A',
       capacity: 10,
       equipements: [{ name: 'Retro Projecteur' }],
     },
     {
       id: 2,
-      name: 'Salle B',
+      name: 'Salle de conférence B',
       capacity: 5,
       equipements: [{ name: 'TV' }],
     },
@@ -56,6 +57,7 @@ describe('useRooms', () => {
     ;(useReservationStore as any).mockReturnValue({
       quantity: 0,
       selectedEquipment: null,
+      search: '',
     })
   })
 
@@ -72,12 +74,13 @@ describe('useRooms', () => {
     ;(useReservationStore as any).mockReturnValue({
       quantity: 8,
       selectedEquipment: null,
+      search: '',
     })
 
     const { filteredRooms } = useRooms()
 
     expect(filteredRooms.value).toHaveLength(1)
-    expect(filteredRooms.value[0].name).toBe('Salle A')
+    expect(filteredRooms.value[0].name).toBe('Salle de réunion A')
   })
 
   it('should filter rooms by equipment', () => {
@@ -85,20 +88,49 @@ describe('useRooms', () => {
     ;(useReservationStore as any).mockReturnValue({
       quantity: 0,
       selectedEquipment: 'Retro Projecteur',
+      search: '',
     })
 
     const { filteredRooms } = useRooms()
 
     expect(filteredRooms.value).toHaveLength(1)
-    expect(filteredRooms.value[0].name).toBe('Salle A')
+    expect(filteredRooms.value[0].name).toBe('Salle de réunion A')
+  })
+
+  it('should filter rooms by search term', () => {
+    // Mock store with search term
+    ;(useReservationStore as any).mockReturnValue({
+      quantity: 0,
+      selectedEquipment: null,
+      search: 'réunion',
+    })
+
+    const { filteredRooms } = useRooms()
+
+    expect(filteredRooms.value).toHaveLength(1)
+    expect(filteredRooms.value[0].name).toBe('Salle de réunion A')
+  })
+
+  it('should filter rooms by multiple search terms', () => {
+    // Mock store with multiple search terms
+    ;(useReservationStore as any).mockReturnValue({
+      quantity: 0,
+      selectedEquipment: null,
+      search: 'salle conférence',
+    })
+
+    const { filteredRooms } = useRooms()
+
+    expect(filteredRooms.value).toHaveLength(1)
+    expect(filteredRooms.value[0].name).toBe('Salle de conférence B')
   })
 
   it('should format rooms correctly', () => {
     const { formattedRooms } = useRooms()
 
     expect(formattedRooms.value).toEqual([
-      { id: '1', label: 'Salle A (10p)' },
-      { id: '2', label: 'Salle B (5p)' },
+      { id: '1', label: 'Salle de réunion A (10p)' },
+      { id: '2', label: 'Salle de conférence B (5p)' },
     ])
   })
 })

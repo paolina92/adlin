@@ -39,8 +39,13 @@ export function useRooms(): UseRoomsReturn {
       ) {
         return false
       }
-      if (search.value && !room.name.toLowerCase().includes(search.value.toLowerCase())) {
-        return false
+      if (search.value) {
+        const searchTerms = search.value
+          .toLowerCase()
+          .split(' ')
+          .filter(term => term.length > 0)
+        const roomName = room.name.toLowerCase()
+        return searchTerms.every(term => roomName.includes(term))
       }
 
       return true
