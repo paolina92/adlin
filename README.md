@@ -45,7 +45,7 @@ pnpm install
 2. Configure environment variables
 
 ```bash
-# Copier le fichier .env.example vers .env
+# Copy .env.example to .env
 cp .env.example .env
 ```
 
@@ -102,7 +102,7 @@ pnpm install
 ### 🔧 Configuration
 
 ```bash
-# Copier le fichier .env.example vers .env
+# Copy .env.example to .env
 cp .env.example .env
 ```
 
