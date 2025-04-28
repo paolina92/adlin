@@ -54,7 +54,7 @@ const deleteReservation = (slots: Slot[]) => {
 </script>
 
 <template>
-  <div class="p-8">
+  <div class="w-full max-w-[1280px] py-6">
     <div v-if="isLoadingRooms || isLoadingReservations" class="text-center">Loading</div>
     <div v-else-if="roomsError || reservationsError" class="text-center text-black">
       Error while loading data
