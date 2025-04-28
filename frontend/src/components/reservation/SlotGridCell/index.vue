@@ -37,11 +37,15 @@ const tooltipText = computed(() => {
     : 'Click to create a reservation'
 })
 
+const showTooltip = computed(() => {
+  return !props.hovered && !props.dropTarget
+})
+
 const dataAttr = `${props.cell.rowId}-${props.cell.columnId}`
 </script>
 
 <template>
-  <Tooltip :text="tooltipText">
+  <Tooltip v-if="showTooltip" :text="tooltipText">
     <div
       :data-slot="dataAttr"
       class="w-full h-full border border-gray p-2 text-center cursor-pointer transition-colors duration-150"
@@ -56,4 +60,18 @@ const dataAttr = `${props.cell.rowId}-${props.cell.columnId}`
       @drop="() => props.onDrop(props.cell)"
     />
   </Tooltip>
+  <div
+    v-else
+    :data-slot="dataAttr"
+    class="w-full h-full border border-gray p-2 text-center cursor-pointer transition-colors duration-150"
+    :class="cellClasses"
+    :draggable="props.isSelected(props.cell)"
+    @mousedown="props.onMouseDown(props.cell)"
+    @mouseenter="props.onMouseEnter(props.cell)"
+    @mouseup="props.onMouseUp(props.cell)"
+    @dragstart="e => props.onDragStart(e, props.cell)"
+    @dragover="props.onDragOver"
+    @dragenter="() => props.onDragEnter(props.cell)"
+    @drop="() => props.onDrop(props.cell)"
+  />
 </template>
