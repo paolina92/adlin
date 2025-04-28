@@ -42,19 +42,26 @@ cd backend/api
 pnpm install
 ```
 
-2. Generate the database
+2. Configure environment variables
+
+```bash
+# Copier le fichier .env.example vers .env
+cp .env.example .env
+```
+
+3. Generate the database
 
 ```bash
 npx prisma migrate dev --name init
 ```
 
-3. Seed with sample data
+4. Seed with sample data
 
 ```bash
 npx prisma db seed
 ```
 
-4. Start the server
+5. Start the server
 
 ```bash
 pnpm run start:dev
@@ -90,6 +97,13 @@ pnpm run test
 ```bash
 cd frontend
 pnpm install
+```
+
+### 🔧 Configuration
+
+```bash
+# Copier le fichier .env.example vers .env
+cp .env.example .env
 ```
 
 ### 🚀 Development Server
