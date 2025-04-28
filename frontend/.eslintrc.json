@@ -15,9 +15,7 @@
   "parserOptions": {
     "ecmaVersion": "latest",
     "parser": "@typescript-eslint/parser",
-    "sourceType": "module",
-    "project": ["./tsconfig.app.json"],
-    "extraFileExtensions": [".vue"]
+    "sourceType": "module"
   },
   "plugins": ["@typescript-eslint", "prettier"],
   "rules": {
@@ -26,5 +24,5 @@
     "@typescript-eslint/no-explicit-any": "warn",
     "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }]
   },
-  "ignorePatterns": ["dist/**/*", "node_modules/**/*"]
+  "ignorePatterns": ["dist/**/*", "node_modules/**/*", "**/*.test.ts"]
 }
