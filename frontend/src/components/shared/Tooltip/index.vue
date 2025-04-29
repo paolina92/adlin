@@ -15,7 +15,7 @@ const props = defineProps<{
 <template>
   <TooltipProvider>
     <TooltipRoot>
-      <TooltipTrigger class="w-full h-full">
+      <TooltipTrigger as-child>
         <slot />
       </TooltipTrigger>
       <TooltipPortal>
