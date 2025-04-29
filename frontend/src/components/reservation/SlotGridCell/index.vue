@@ -29,8 +29,8 @@ const cellClasses = computed(() => ({
 
 const tooltipText = computed(() => {
   return props.isSelected(props.cell)
-    ? 'Drag & drop to change reservation'
-    : 'Click or drag to create a reservation'
+    ? 'Drag & drop to change or click to delete'
+    : 'Click or drag to create'
 })
 
 const dataAttr = `${props.cell.rowId}-${props.cell.columnId}`
