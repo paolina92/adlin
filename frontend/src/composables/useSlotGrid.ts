@@ -170,8 +170,15 @@ export const useSlotGrid = ({
 
     document.body.appendChild(ghost)
     const rect = ghost.getBoundingClientRect()
+
     event.dataTransfer?.setDragImage(ghost, 0, rect.height / 2)
-    setTimeout(() => document.body.removeChild(ghost), 0)
+
+    // 🔥 ajout obligatoire pour Firefox :
+    event.dataTransfer?.setData('text/plain', 'dragging')
+
+    requestAnimationFrame(() => {
+      document.body.removeChild(ghost)
+    })
   }
 
   const handleDragOver = (event: DragEvent) => {
