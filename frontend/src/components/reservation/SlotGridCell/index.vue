@@ -1,7 +1,10 @@
+<!--
+  @component SlotGridCell
+  @description A component that displays a cell for a slot in the slot grid.
+-->
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Slot } from '@/types/slotGrid'
-import Tooltip from '@/components/shared/Tooltip'
 
 const props = defineProps<{
   cell: Slot
@@ -27,36 +30,15 @@ const cellClasses = computed(() => ({
   'border-r-0': props.hasRightBorder,
 }))
 
-const shouldShowTooltip = computed(() => {
-  return !props.isSelected(props.cell) && !props.hovered && !props.dropTarget
-})
-
-const tooltipText = 'Click to create a reservation'
-
 const dataAttr = `${props.cell.rowId}-${props.cell.columnId}`
 </script>
 
 <template>
-  <Tooltip v-if="shouldShowTooltip" :text="tooltipText">
-    <div
-      :data-slot="dataAttr"
-      class="w-full h-full border border-gray p-2 text-center cursor-pointer transition-colors duration-150"
-      :class="cellClasses"
-      draggable="true"
-      @mousedown="props.onMouseDown(props.cell)"
-      @mouseenter="props.onMouseEnter(props.cell)"
-      @mouseup="props.onMouseUp(props.cell)"
-      @dragstart="e => props.onDragStart(e, props.cell)"
-      @dragover="props.onDragOver"
-      @dragenter="() => props.onDragEnter(props.cell)"
-      @drop="() => props.onDrop(props.cell)"
-    />
-  </Tooltip>
-  <div v-else
+  <div
     :data-slot="dataAttr"
     class="w-full h-full border border-gray p-2 text-center cursor-pointer transition-colors duration-150"
     :class="cellClasses"
-    draggable="true"
+    :draggable="props.isSelected(props.cell)"
     @mousedown="props.onMouseDown(props.cell)"
     @mouseenter="props.onMouseEnter(props.cell)"
     @mouseup="props.onMouseUp(props.cell)"
