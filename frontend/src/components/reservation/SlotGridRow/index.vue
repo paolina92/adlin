@@ -64,9 +64,10 @@ const rightBorder = (colId: string) => {
     {{ row.label }}
   </div>
 
-  <template v-for="col in columns" :key="`${row.id}-${col.id}`">
+  <template v-for="col in columns">
     <Popover
       v-if="deletePopoverOpen && isFirstDelete(col.id)"
+      :key="`popover-${row.id}-${col.id}`"
       :open="deletePopoverOpen"
       @update:open="open => !open && cancelDelete()"
     >
@@ -97,6 +98,7 @@ const rightBorder = (colId: string) => {
 
     <SlotGridCell
       v-else
+      :key="`cell-${row.id}-${col.id}`"
       :cell="{ rowId: row.id, columnId: col.id }"
       :is-selected="isSelected"
       :hovered="hovered(col.id)"
